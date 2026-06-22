@@ -147,7 +147,7 @@ flowchart TB
         A6["Index 6: 82"]
     end
     subgraph Search["Search for 43"]
-        S1["Step 1: lo=0, hi=6, mid=3<br/>arr[3]=27 < 43 → search RIGHT"]
+        S1["Step 1: lo=0, hi=6, mid=3<br/>arr[3]=27 less than 43, search RIGHT"]
         S2["Step 2: lo=4, hi=6, mid=5<br/>arr[5]=43 == 43 ✅ FOUND"]
     end
     A0 --> S1 --> S2

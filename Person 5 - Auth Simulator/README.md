@@ -35,20 +35,20 @@ sequenceDiagram
     participant S as Flask Server
     participant A as Auth Module
     
-    C->>S: POST /api/auth/login<br/>{email, password}
+    C->>S: POST /api/auth/login with email and password
     S->>A: handle_login(data)
-    A->>A: Hash password<br/>Lookup user<br/>Check credentials
+    A->>A: Hash password, lookup user, check credentials
     A-->>S: {access_token, refresh_token, role}
     S-->>C: ✅ Tokens issued
     
-    C->>S: GET /api/stocks/AAPL<br/>Authorization: Bearer &lt;token&gt;
-    S->>A: @require_auth → decode JWT
-    A-->>S: {email, role}
+    C->>S: GET /api/stocks/AAPL with Bearer token
+    S->>A: @require_auth decodes JWT
+    A-->>S: email and role
     S->>S: Process request
-    S-->>C: ✅ Stock data
+    S-->>C: Stock data returned
     
     Note over C,S: When access_token expires (1h)
-    C->>S: POST /api/auth/refresh<br/>{refresh_token}
+    C->>S: POST /api/auth/refresh with refresh_token
     S->>A: Verify refresh token
     A-->>S: New {access_token, refresh_token}
     S-->>C: ✅ New tokens
@@ -214,7 +214,7 @@ sequenceDiagram
     
     Note over S: Every 2 seconds
     
-    S->>S: Pick random stock<br/>Random ±2% price change
+    S->>S: Pick random stock, random +/-2% change
     S->>Q: enqueue(Tick)
     S->>Q: drain() → [Tick]
     
