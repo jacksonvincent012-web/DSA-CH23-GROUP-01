@@ -7,27 +7,31 @@
 ## DIAGRAM 1: USE CASE DIAGRAM (Coloured)
 
 ```mermaid
----
-title: Stock Query Server — Use Cases
----
-usecaseDiagram
-    actor "Viewer" as V
-    actor "Analyst" as A
-    actor "Admin" as Ad
-    actor "Simulator" as S
+%%{init: {'fontSize': '18px'}}%%
+graph LR
+    classDef viewer fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    classDef analyst fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    classDef admin fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    classDef sim fill:#9C27B0,stroke:#4A148C,stroke-width:2px,color:#fff
+    classDef uc fill:#E3F2FD,stroke:#1565C0,stroke-width:1px,color:#000
+    classDef ucSim fill:#F3E5F5,stroke:#4A148C,stroke-width:1px,color:#000
 
-    usecase "UC1: Lookup Stock O(1)" as UC1
-    usecase "UC2: View Top-K O(log K)" as UC2
-    usecase "UC3: Explore Sectors BFS/DFS" as UC3
-    usecase "UC4: Sort History O(n log n)" as UC4
-    usecase "UC5: Search Range O(log n)" as UC5
-    usecase "UC6: Login / Auth JWT" as UC6
-    usecase "UC7: Create Alert O(1)" as UC7
-    usecase "UC8: Undo Alert O(1)" as UC8
-    usecase "UC9: Run Benchmarks" as UC9
-    usecase "UC10: Clear Cache" as UC10
-    usecase "UC11: Buffer Ticks FIFO" as UC11
-    usecase "UC12: Seed 10K Stocks" as UC12
+    V["Viewer"]
+    A["Analyst"]
+    Ad["Admin"]
+    S["Simulator"]
+    UC1["UC1: Lookup Stock O(1)"]
+    UC2["UC2: View Top-K O(log K)"]
+    UC3["UC3: Explore Sectors BFS/DFS"]
+    UC4["UC4: Sort History O(n log n)"]
+    UC5["UC5: Search Range O(log n)"]
+    UC6["UC6: Login / Auth JWT"]
+    UC7["UC7: Create Alert O(1)"]
+    UC8["UC8: Undo Alert O(1)"]
+    UC9["UC9: Run Benchmarks"]
+    UC10["UC10: Clear Cache"]
+    UC11["UC11: Buffer Ticks FIFO"]
+    UC12["UC12: Seed 10K Stocks"]
 
     V --> UC1
     V --> UC2
@@ -41,6 +45,13 @@ usecaseDiagram
     Ad --> UC10
     S --> UC11
     S --> UC12
+
+    class V viewer
+    class A analyst
+    class Ad admin
+    class S sim
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10 uc
+    class UC11,UC12 ucSim
 ```
 
 ---
