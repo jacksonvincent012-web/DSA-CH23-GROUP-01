@@ -7,30 +7,31 @@
 ## DIAGRAM 1: USE CASE DIAGRAM (Coloured)
 
 ```mermaid
-%%{init: {'fontSize': '18px'}}%%
-graph LR
-    classDef viewer fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
-    classDef analyst fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
-    classDef admin fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
-    classDef sim fill:#9C27B0,stroke:#4A148C,stroke-width:2px,color:#fff
-    classDef uc fill:#E3F2FD,stroke:#1565C0,stroke-width:1px,color:#000
-    classDef ucSim fill:#F3E5F5,stroke:#4A148C,stroke-width:1px,color:#000
+%%{init: {'fontSize': '16px', 'nodePadding': '20'}}%%
+graph TB
+    classDef viewer fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff,font-size:18px
+    classDef analyst fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff,font-size:18px
+    classDef admin fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#fff,font-size:18px
+    classDef sim fill:#9C27B0,stroke:#4A148C,stroke-width:3px,color:#fff,font-size:18px
+    classDef uc fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#000,font-size:13px
+    classDef ucSim fill:#F3E5F5,stroke:#4A148C,stroke-width:2px,color:#000,font-size:13px
 
     V["Viewer"]
     A["Analyst"]
     Ad["Admin"]
     S["Simulator"]
-    UC1["UC1: Lookup Stock O(1)"]
-    UC2["UC2: View Top-K O(log K)"]
-    UC3["UC3: Explore Sectors BFS/DFS"]
-    UC4["UC4: Sort History O(n log n)"]
-    UC5["UC5: Search Range O(log n)"]
-    UC6["UC6: Login / Auth JWT"]
-    UC7["UC7: Create Alert O(1)"]
-    UC8["UC8: Undo Alert O(1)"]
+
+    UC1["UC1: Lookup Stock (O(1) HashMap)"]
+    UC2["UC2: View Top-K (O(log K) Heap)"]
+    UC3["UC3: Explore Sectors (BFS/DFS Graph)"]
+    UC4["UC4: Sort History (O(n log n) MergeSort)"]
+    UC5["UC5: Search Range (O(log n) BinarySearch)"]
+    UC6["UC6: Login (JWT Auth)"]
+    UC7["UC7: Create Alert (O(1) Stack)"]
+    UC8["UC8: Undo Alert (O(1) Pop)"]
     UC9["UC9: Run Benchmarks"]
     UC10["UC10: Clear Cache"]
-    UC11["UC11: Buffer Ticks FIFO"]
+    UC11["UC11: Buffer Ticks (FIFO Queue)"]
     UC12["UC12: Seed 10K Stocks"]
 
     V --> UC1
