@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Learning Journey — Stock Query Server</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #1a1a2e; color: #eee; overflow: hidden; height: 100vh; }
+  .slide { display: none; width: 100vw; height: 100vh; padding: 60px 80px; position: absolute; top: 0; left: 0; flex-direction: column; justify-content: center; }
+  .slide.active { display: flex; }
+  .slide:nth-child(odd) { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+  .slide:nth-child(even) { background: linear-gradient(135deg, #16213e 0%, #0f3460 100%); }
+  h1 { font-size: 3.2em; font-weight: 800; margin-bottom: 20px; background: linear-gradient(135deg, #e94560, #f5a623); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  h2 { font-size: 2.2em; font-weight: 700; margin-bottom: 15px; color: #f5a623; }
+  h3 { font-size: 1.5em; font-weight: 600; margin-bottom: 10px; color: #e94560; }
+  p, li { font-size: 1.15em; line-height: 1.6; color: #ccc; }
+  ul { list-style: none; }
+  li { margin: 8px 0; padding-left: 24px; position: relative; }
+  li::before { content: "▸"; position: absolute; left: 0; color: #e94560; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+  .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; }
+  .card h3 { font-size: 1.1em; margin-bottom: 8px; }
+  .card p { font-size: 0.95em; color: #aaa; }
+  .badge { display: inline-block; background: #e94560; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 8px; }
+  .badge.green { background: #2ecc71; }
+  .badge.blue { background: #3498db; }
+  .badge.purple { background: #9b59b6; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  th { color: #f5a623; font-weight: 600; }
+  td { color: #ccc; }
+  .quote { font-style: italic; border-left: 4px solid #e94560; padding-left: 20px; margin: 20px 0; color: #999; font-size: 1.1em; }
+  .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 100; }
+  .nav button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 1em; transition: all 0.3s; }
+  .nav button:hover { background: #e94560; border-color: #e94560; }
+  .counter { position: fixed; bottom: 30px; right: 30px; color: #666; font-size: 0.9em; z-index: 100; }
+  .mermaid-placeholder { background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 30px; text-align: center; color: #666; margin: 15px 0; }
+  code { background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px; font-size: 0.9em; color: #f5a623; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .big-num { font-size: 3em; font-weight: 800; color: #e94560; }
+  .small { font-size: 0.85em; color: #888; }
+  .tag { display: inline-block; background: rgba(233,69,96,0.2); color: #e94560; padding: 2px 10px; border-radius: 4px; font-size: 0.8em; margin: 2px; }
+</style>
+</head>
+<body>
+
+<div class="slide active" id="s1">
+  <h1>DSA Learning Journey</h1>
+  <h2>Stock Query Server — Theme C, Variant C3</h2>
+  <p style="font-size:1.3em; margin-top:20px;">Alerts + Event Queue</p>
+  <div style="margin-top:40px;">
+    <span class="badge">6 Members</span>
+    <span class="badge green">10,000 Stocks</span>
+    <span class="badge blue">8 DSA Structures</span>
+    <span class="badge purple">46 Tests</span>
+  </div>
+  <div class="quote" style="margin-top:40px;">"You are not building a system. You are learning how to build a system using DSA."</div>
+  <p style="margin-top:10px; color:#888;">DSA-CH23-GROUP-01 · June 2026</p>
+</div>
+
+<div class="slide" id="s2">
+  <h1>Learning Objectives</h1>
+  <div class="grid">
+    <div class="card"><h3>🧩 Apply 8+ DSA Structures</h3><p>Map each use case to a data structure in one coherent system</p></div>
+    <div class="card"><h3>📊 Reason About Complexity</h3><p>Analyse before coding; verify with empirical benchmarks</p></div>
+    <div class="card"><h3>💾 Handle 10,000 Records</h3><p>No database allowed — pure in-memory DSA</p></div>
+    <div class="card"><h3>📐 5-Step Design Method</h3><p>Chapter 23: Problem → Constraints → DSA → Bottlenecks → Scale</p></div>
+    <div class="card"><h3>👥 Collaborate via Git</h3><p>6 roles, individual commits, verifiable history</p></div>
+    <div class="card"><h3>🧪 Test Edge Cases</h3><p>46 pytest unit tests covering happy + edge paths</p></div>
+  </div>
+</div>
+
+<div class="slide" id="s3">
+  <h1>Team Roles</h1>
+  <table>
+    <tr><th>Person</th><th>Role</th><th>Key Contribution</th></tr>
+    <tr><td>Person 1</td><td>Team Lead</td><td>Repo setup, README, architecture diagram, docs</td></tr>
+    <tr><td>Person 2</td><td>DSA Lead</td><td>HashMap, Queue, Stack, Heap, Graph, LRU Cache</td></tr>
+    <tr><td>Person 3</td><td>Algorithms Lead</td><td>MergeSort, BinarySearch, Benchmarks</td></tr>
+    <tr><td>Person 4</td><td>API Developer</td><td>22 Flask endpoints, route wiring, CORS</td></tr>
+    <tr><td>Person 5</td><td>Auth + Simulator</td><td>JWT auth, 10K seeder, tick generator</td></tr>
+    <tr><td>Person 6</td><td>Testing & QA</td><td>46 pytest tests, edge cases, coverage</td></tr>
+  </table>
+</div>
+
+<div class="slide" id="s4">
+  <h1>Step 1 — Use Cases</h1>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li><strong>UC1:</strong> Lookup stock by symbol</li>
+        <li><strong>UC2:</strong> View top-K by volume</li>
+        <li><strong>UC3:</strong> Explore sector relations</li>
+        <li><strong>UC4:</strong> Sort price history</li>
+        <li><strong>UC5:</strong> Search by price range</li>
+        <li><strong>UC6:</strong> Create price alert</li>
+        <li><strong>UC7:</strong> Undo alert</li>
+        <li><strong>UC8:</strong> Buffer ticks FIFO</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px;"><h3>👤 Viewer</h3><p>Read-only: browse, search, view</p></div>
+      <div class="card" style="margin-bottom:10px;"><h3>🔍 Analyst</h3><p>Viewer + create/undo alerts</p></div>
+      <div class="card" style="margin-bottom:10px;"><h3>⚙️ Admin</h3><p>Analyst + benchmarks, cache mgmt</p></div>
+      <div class="card"><h3>🤖 Simulator</h3><p>Background tick generator</p></div>
+    </div>
+  </div>
+  <p style="margin-top:15px;"><span class="tag">📸 Insert use case diagram screenshot here</span></p>
+</div>
+
+<div class="slide" id="s5">
+  <h1>Step 2 — Constraints → DSA Choices</h1>
+  <table>
+    <tr><th>Constraint</th><th>Value</th><th>DSA Solution</th></tr>
+    <tr><td>Stock count</td><td>10,000</td><td><code>StockHashMap</code> O(1)</td></tr>
+    <tr><td>Price ticks</td><td>Every 2s</td><td><code>IngestionQueue</code> O(1)</td></tr>
+    <tr><td>Top-K requests</td><td>K ≤ 10</td><td><code>TopKHeap</code> O(log K)</td></tr>
+    <tr><td>Max alerts</td><td>1,000</td><td><code>AlertStack</code> O(1)</td></tr>
+    <tr><td>Sector relations</td><td>10 sectors</td><td><code>SectorGraph</code> BFS/DFS</td></tr>
+    <tr><td>Sort history</td><td>90 days</td><td><code>MergeSort</code> O(n log n)</td></tr>
+    <tr><td>Price search</td><td>Range query</td><td><code>BinarySearch</code> O(log n)</td></tr>
+    <tr><td>Hot stock cache</td><td>50 entries</td><td><code>LRUCache</code> O(1)</td></tr>
+  </table>
+</div>
+
+<div class="slide" id="s6">
+  <h1>DSA: StockHashMap</h1>
+  <div class="two-col">
+    <div>
+      <h3>What We Needed</h3>
+      <p>O(1) stock lookup by ticker symbol across 10,000 stocks</p>
+      <h3 style="margin-top:15px;">What We Considered</h3>
+      <ul>
+        <li>Sorted array + binary search — O(log n) but O(n) insert ❌</li>
+        <li>Binary search tree — O(log n) avg, could degrade ❌</li>
+        <li><strong>Python dict (hash table) — O(1) avg ✅</strong></li>
+      </ul>
+      <h3 style="margin-top:15px;">Key Takeaway</h3>
+      <p style="color:#f5a623;">Hash table first for O(1) lookup — but handle missing keys gracefully</p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Verification</h3>
+        <table>
+          <tr><th>N</th><th>put</th><th>get</th></tr>
+          <tr><td>1K</td><td>0.0002s</td><td>0.0001s</td></tr>
+          <tr><td>10K</td><td>0.0002s</td><td>0.0001s</td></tr>
+          <tr><td>100K</td><td>0.0002s</td><td>0.0001s</td></tr>
+        </table>
+        <p style="color:#2ecc71; margin-top:10px;">✅ O(1) confirmed — flat timing</p>
+      </div>
+      <p style="margin-top:10px;"><span class="tag">📸 Insert GitHub code screenshot</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s7">
+  <h1>DSA: IngestionQueue & AlertStack</h1>
+  <div class="two-col">
+    <div class="card">
+      <h3>📦 IngestionQueue (FIFO)</h3>
+      <p><strong>What we needed:</strong> Buffer price ticks without blocking API</p>
+      <p><strong>What we considered:</strong> list.pop(0) = O(n) ❌ → deque.popleft() = O(1) ✅</p>
+      <p><strong>Lesson:</strong> Never use list as a queue — <code>deque</code> is O(1) on both ends</p>
+      <table>
+        <tr><th>N</th><th>enqueue</th><th>dequeue</th></tr>
+        <tr><td>1K</td><td>771μs</td><td>513μs</td></tr>
+        <tr><td>10K</td><td>1,567μs</td><td>1,887μs</td></tr>
+      </table>
+      <p style="color:#2ecc71;">✅ O(1) confirmed</p>
+    </div>
+    <div class="card">
+      <h3>📚 AlertStack (LIFO + Undo)</h3>
+      <p><strong>What we needed:</strong> Create alerts, undo last deletion</p>
+      <p><strong>What we considered:</strong> List + undo buffer — simple, O(1) push/pop</p>
+      <p><strong>Lesson:</strong> Stack undo is elegant — one secondary buffer stores the last popped item</p>
+      <table>
+        <tr><th>N</th><th>push</th><th>pop</th></tr>
+        <tr><td>1K</td><td>742μs</td><td>990μs</td></tr>
+        <tr><td>10K</td><td>512μs</td><td>583μs</td></tr>
+      </table>
+      <p style="color:#2ecc71;">✅ O(1) confirmed</p>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s8">
+  <h1>DSA: TopKHeap & SectorGraph</h1>
+  <div class="two-col">
+    <div class="card">
+      <h3>📈 TopKHeap (Min-Heap)</h3>
+      <p><strong>What we needed:</strong> Top 5 stocks by volume without sorting 10K</p>
+      <p><strong>What we considered:</strong> Full sort = 50ms ❌ → Heap O(N log K) = 0.3ms ✅</p>
+      <p><strong>Lesson:</strong> <strong>170× faster</strong> by maintaining candidates incrementally</p>
+      <p><span class="tag">K=10</span> <span class="tag">O(log K)</span></p>
+    </div>
+    <div class="card">
+      <h3>🔗 SectorGraph (BFS/DFS)</h3>
+      <p><strong>What we needed:</strong> "Which sectors are related to TECH?"</p>
+      <p><strong>What we considered:</strong> Adjacency list — O(V+E) traversal</p>
+      <p><strong>Lesson:</strong> BFS gives closest neighbours first; DFS gives full chain. Different questions, same graph.</p>
+      <p><span class="tag">10 sectors</span> <span class="tag">BFS</span> <span class="tag">DFS</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s9">
+  <h1>DSA: MergeSort & BinarySearch</h1>
+  <div class="two-col">
+    <div class="card">
+      <h3>🔢 MergeSort</h3>
+      <p><strong>What we needed:</strong> Sort 10K stocks by price stably</p>
+      <p><strong>Verification:</strong></p>
+      <table>
+        <tr><th>N</th><th>Time</th><th>Pattern</th></tr>
+        <tr><td>1K</td><td>8,808μs</td><td>—</td></tr>
+        <tr><td>10K</td><td>44,989μs</td><td>~5.1×</td></tr>
+        <tr><td>100K</td><td>527,884μs</td><td>~13× per 10×</td></tr>
+      </table>
+      <p style="color:#2ecc71;">✅ O(n log n) confirmed</p>
+    </div>
+    <div class="card">
+      <h3>🎯 BinarySearch</h3>
+      <p><strong>What we needed:</strong> Find stocks in price range $100–$500</p>
+      <p><strong>Verification:</strong></p>
+      <table>
+        <tr><th>N</th><th>search</th><th>range</th></tr>
+        <tr><td>1K</td><td>4μs</td><td>7μs</td></tr>
+        <tr><td>10K</td><td>2μs</td><td>4μs</td></tr>
+        <tr><td>100K</td><td>5μs</td><td>11μs</td></tr>
+      </table>
+      <p style="color:#2ecc71;">✅ O(log n) confirmed</p>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s10">
+  <h1>DSA: LRU Cache (Bonus)</h1>
+  <div class="two-col">
+    <div>
+      <h3>What We Learned</h3>
+      <ul>
+        <li>80/20 rule: 80% of requests hit 20% of stocks</li>
+        <li>HashMap + Doubly Linked List = O(1) get/put</li>
+        <li>Pointer surgery is tricky — wrong node eviction bug caught by tests</li>
+        <li>66.7% hit rate after just 3 requests in testing</li>
+      </ul>
+      <h3 style="margin-top:20px;">Stats</h3>
+      <p>Capacity: 50 · Size: 1 · Hits: 2 · Misses: 1</p>
+      <p style="color:#2ecc71;">✅ O(1) confirmed — flat across 1K–100K</p>
+    </div>
+    <div class="card">
+      <h3>Architecture</h3>
+      <pre style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; color:#aaa; font-size:0.85em;">
+Client → GET /api/stocks/AAPL
+  → LRUCache.get("AAPL")
+    → HIT → return cached ✅
+    → MISS → StockHashMap.get()
+      → LRUCache.put("AAPL", result)
+      → return result
+      </pre>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s11">
+  <h1>Step 4 — Bottlenecks We Found</h1>
+  <table>
+    <tr><th>#</th><th>Bottleneck</th><th>Fix</th></tr>
+    <tr><td>B1</td><td>Top-K sorted all 10K O(N log N)</td><td>TopKHeap maintains O(log K)</td></tr>
+    <tr><td>B2</td><td>list.pop(0) = O(n) dequeue</td><td>deque.popleft() = O(1)</td></tr>
+    <tr><td>B3</td><td>Every lookup hit HashMap</td><td>LRUCache caches hot stocks</td></tr>
+    <tr><td>B4</td><td>DFS recursion limit</td><td>dfs_iterative() explicit stack</td></tr>
+    <tr><td>B5</td><td>Duplicate heap entries</td><td>_symbols tracking dict</td></tr>
+  </table>
+</div>
+
+<div class="slide" id="s12">
+  <h1>Step 5 — Scalability Lessons</h1>
+  <div class="grid">
+    <div class="card"><h3>Phase 1 ✅</h3><p>In-memory: fast but data lost on restart</p></div>
+    <div class="card"><h3>Phase 2 (Future)</h3><p>PostgreSQL + Redis — persistence + faster cache</p></div>
+    <div class="card"><h3>Phase 3 (Future)</h3><p>Kafka for reliable tick delivery, K8s for auto-scaling</p></div>
+    <div class="card"><h3>Key Insight</h3><p>Our DSA choices scale naturally — HashMap, Heap, Queue all work at millions of records</p></div>
+  </div>
+</div>
+
+<div class="slide" id="s13">
+  <h1>Testing — 46 Unit Tests</h1>
+  <table>
+    <tr><th>Test Class</th><th>Tests</th><th>Structure</th></tr>
+    <tr><td>TestStockHashMap</td><td>7</td><td>get, put, missing, case-insensitive</td></tr>
+    <tr><td>TestIngestionQueue</td><td>5</td><td>FIFO, empty, drain, peek</td></tr>
+    <tr><td>TestAlertStack</td><td>6</td><td>push, pop, undo, max size</td></tr>
+    <tr><td>TestTopKHeap</td><td>4</td><td>descending, size bound, discard</td></tr>
+    <tr><td>TestSectorGraph</td><td>7</td><td>BFS, DFS, empty, iterative</td></tr>
+    <tr><td>TestMergeSort</td><td>5</td><td>numbers, empty, custom key</td></tr>
+    <tr><td>TestBinarySearch</td><td>4</td><td>find, missing, lower/upper bound</td></tr>
+    <tr><td>TestLRUCache</td><td>8</td><td>eviction, refresh, clear, stats</td></tr>
+    <tr style="font-weight:700; color:#f5a623;"><td><strong>Total</strong></td><td><strong>46</strong></td><td><strong>All passed ✅</strong></td></tr>
+  </table>
+</div>
+
+<div class="slide" id="s14">
+  <h1>Team Reflections</h1>
+  <div class="grid">
+    <div class="card"><h3>👤 Person 1 — Team Lead</h3><p>"Integration is harder than implementation. The architecture diagram forced me to understand every DSA."</p></div>
+    <div class="card"><h3>👤 Person 2 — DSA Lead</h3><p>"Most ops are O(1) — the real difference is edge cases. LRU Cache pointer surgery was the hardest."</p></div>
+    <div class="card"><h3>👤 Person 3 — Algorithms</h3><p>"Seeing MergeSort's O(n log n) match theory (13× per 10×) was deeply satisfying."</p></div>
+    <div class="card"><h3>👤 Person 4 — API Dev</h3><p>"Each endpoint is an interface to exactly one DSA operation. CORS took an hour to debug!"</p></div>
+    <div class="card"><h3>👤 Person 5 — Auth</h3><p>"Security is about trade-offs: short-lived tokens = safer but need refresh logic."</p></div>
+    <div class="card"><h3>👤 Person 6 — Testing</h3><p>"Edge cases are 40% of our tests. LRU eviction test caught a real DLL bug."</p></div>
+  </div>
+</div>
+
+<div class="slide" id="s15">
+  <h1>Conclusion</h1>
+  <h3>What We Learned</h3>
+  <ul>
+    <li><strong>Every DSA has a job</strong> — match the right structure to the right problem</li>
+    <li><strong>Complexity analysis is real</strong> — our benchmarks matched theory precisely</li>
+    <li><strong>Bugs hide in edge cases</strong> — 40% of tests covered non-happy paths</li>
+    <li><strong>Systems thinking matters</strong> — data flows through multiple DSAs: Queue → Map → Heap → Cache</li>
+  </ul>
+  <div class="quote" style="margin-top:30px; font-size:1.3em;">
+    "We didn't build a production server. We built a learning environment where we could apply every DSA from Chapter 23. The real output is not the code — it's what we now know about when to use a heap, why queues exist, and how caching works."
+  </div>
+  <div style="margin-top:30px;">
+    <span class="badge">10K stocks</span>
+    <span class="badge green">46/46 tests</span>
+    <span class="badge blue">22 endpoints</span>
+    <span class="badge purple">8 DSAs</span>
+  </div>
+</div>
+
+<div class="nav">
+  <button onclick="prevSlide()">◀ Prev</button>
+  <button onclick="nextSlide()">Next ▶</button>
+</div>
+<div class="counter" id="counter">1 / 15</div>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+
+function showSlide(n) {
+  slides.forEach(s => s.classList.remove('active'));
+  slides[n].classList.add('active');
+  document.getElementById('counter').textContent = (n + 1) + ' / ' + slides.length;
+}
+
+function nextSlide() { current = (current + 1) % slides.length; showSlide(current); }
+function prevSlide() { current = (current - 1 + slides.length) % slides.length; showSlide(current); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+});
+</script>
+</body>
+</html>

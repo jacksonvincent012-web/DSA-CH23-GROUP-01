@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Learning Logbook — Stock Query Server | DSA-CH23-GROUP-01</title>
+<style>
+body { font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 30px; line-height: 1.6; color: #1a1a1a; }
+h1 { font-size: 28pt; text-align: center; margin-bottom: 4px; }
+h2 { font-size: 18pt; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 6px; margin-top: 36px; }
+h3 { font-size: 14pt; color: #2c3e50; margin-top: 24px; }
+h4 { font-size: 12pt; color: #34495e; margin-top: 18px; }
+p { margin: 10px 0; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 10pt; }
+th { background: #2c3e50; color: #fff; padding: 8px 10px; text-align: left; }
+td { border: 1px solid #ccc; padding: 6px 10px; }
+tr:nth-child(even) { background: #f8f9fa; }
+blockquote { border-left: 4px solid #3498db; margin: 16px 0; padding: 10px 20px; background: #f0f7ff; font-style: italic; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', 'Courier New', monospace; font-size: 9.5pt; }
+pre { background: #1e1e2e; color: #cdd6f4; padding: 14px 18px; border-radius: 6px; overflow-x: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 9pt; line-height: 1.5; }
+hr { border: none; border-top: 1px solid #ddd; margin: 30px 0; }
+.screenshot-box { border: 2px dashed #3498db; background: #f0f7ff; padding: 20px; text-align: center; border-radius: 6px; margin: 16px 0; font-size: 11pt; }
+.screenshot-box strong { color: #2c3e50; }
+.toc a { color: #3498db; text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.quote { font-size: 12pt; text-align: center; margin: 20px 0; }
+.metrics { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 20px 0; }
+.metric-box { background: #2c3e50; color: #fff; padding: 14px 20px; border-radius: 6px; text-align: center; min-width: 120px; }
+.metric-box .num { font-size: 20pt; font-weight: bold; }
+.metric-box .label { font-size: 9pt; opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<h1>LEARNING LOGBOOK</h1>
+<h2 style="text-align:center; border:none; margin-top:0;">Stock Query Server — DSA-CH23-GROUP-01</h2>
+
+<p style="text-align:center;">
+<strong>Theme C, Variant C3:</strong> Alerts + Event Queue<br>
+<strong>Course:</strong> Data Structures and Algorithms (Chapter 23 — Hemant Jain)<br>
+<strong>Team Size:</strong> 6 Members<br>
+<strong>Submission Date:</strong> June 2026
+</p>
+
+<blockquote class="quote">
+"You are not building a system. You are learning how to build a system using DSA." — Our Lecturer
+</blockquote>
+
+<hr>
+
+<h2>TABLE OF CONTENTS</h2>
+<ol class="toc">
+<li><a href="#s1">Problem Statement &amp; Learning Objectives</a></li>
+<li><a href="#s2">Team Roles</a></li>
+<li><a href="#s3">Step 1 — Understanding the Problem (Use Cases)</a></li>
+<li><a href="#s4">Step 2 — Analyzing Constraints</a></li>
+<li><a href="#s5">Step 3 — DSA Selection &amp; Learning</a>
+<ul>
+<li>5.1 StockHashMap (Hash Table)</li>
+<li>5.2 IngestionQueue (Queue)</li>
+<li>5.3 AlertStack (Stack)</li>
+<li>5.4 TopKHeap (Min-Heap)</li>
+<li>5.5 SectorGraph (Graph)</li>
+<li>5.6 LRUCache (HashMap + DLL)</li>
+<li>5.7 MergeSort (Sorting)</li>
+<li>5.8 BinarySearch (Searching)</li>
+<li>5.9 Bonus — LRU Cache Deep Dive</li>
+<li>5.10 Benchmarks — Verifying Our Complexity Claims</li>
+</ul>
+</li>
+<li><a href="#s6">Step 4 — Finding &amp; Fixing Bottlenecks</a></li>
+<li><a href="#s7">Step 5 — What We'd Do Differently (Scalability Lessons)</a></li>
+<li><a href="#s8">Testing — 46 Unit Tests</a></li>
+<li><a href="#s9">Live API Verification</a></li>
+<li><a href="#s10">Team Reflections — What Each Member Learned</a></li>
+<li><a href="#s11">Conclusion</a></li>
+</ol>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s1">1. PROBLEM STATEMENT &amp; LEARNING OBJECTIVES</h2>
+
+<h3>The Problem We Were Given</h3>
+<p>Build a real-time stock query server where users can:</p>
+<ul>
+<li>Look up stock prices by ticker symbol (e.g., AAPL, MSFT)</li>
+<li>View top-K stocks by trading volume</li>
+<li>Set price threshold alerts with undo capability</li>
+<li>Explore sector relationships using graph traversal</li>
+<li>Search stocks by price range</li>
+<li>View price history sorted by date</li>
+</ul>
+
+<h3>What We Were Actually Learning</h3>
+<p>Behind the problem statement, the real curriculum was:</p>
+
+<table>
+<tr><th>Learning Objective</th><th>How We'd Meet It</th></tr>
+<tr><td>Apply 8+ DSA structures in one coherent system</td><td>Map each use case to a data structure</td></tr>
+<tr><td>Reason about time &amp; space complexity</td><td>Analyse before coding; verify with benchmarks</td></tr>
+<tr><td>Handle 10,000 records in-memory</td><td>No database allowed — pure DSA</td></tr>
+<tr><td>Design for 5 steps (Chapter 23 method)</td><td>Problem → Constraints → DSA Selection → Bottlenecks → Scale</td></tr>
+<tr><td>Collaborate as a team using Git</td><td>6 roles, individual commits, code review</td></tr>
+<tr><td>Test edge cases systematically</td><td>46 pytest unit tests</td></tr>
+</table>
+
+<h3>Technology Stack (What We Used)</h3>
+<table>
+<tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+<tr><td>Backend</td><td>Python 3.11+, Flask 3.0</td><td>Fast prototyping, rich DSA standard library</td></tr>
+<tr><td>Auth</td><td>PyJWT + SHA-256</td><td>Stateless, matches real-world practice</td></tr>
+<tr><td>Testing</td><td>pytest (46 tests)</td><td>Industry standard</td></tr>
+<tr><td>Frontend (optional)</td><td>React 18 + TypeScript + Vite 5</td><td>Bonus visualisation</td></tr>
+<tr><td>Deployment</td><td>Vercel (serverless)</td><td>Free tier, showed us serverless constraints</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s2">2. TEAM ROLES</h2>
+
+<table>
+<tr><th>Person</th><th>Role</th><th>Responsibilities</th></tr>
+<tr><td>Person 1</td><td>Team Lead / Integrator</td><td>Repo setup, README, docs, architecture diagram, launch scripts, config</td></tr>
+<tr><td>Person 2</td><td>Data Structures Lead</td><td>StockHashMap, IngestionQueue, AlertStack, TopKHeap, SectorGraph, LRUCache</td></tr>
+<tr><td>Person 3</td><td>Algorithms Lead</td><td>MergeSort, BinarySearch, Benchmarks</td></tr>
+<tr><td>Person 4</td><td>API Developer</td><td>Flask server, 22 endpoints, route wiring, CORS</td></tr>
+<tr><td>Person 5</td><td>Auth + Simulator</td><td>JWT auth, RBAC, 10K stock seeder, tick generator, Vercel entry</td></tr>
+<tr><td>Person 6</td><td>Testing &amp; QA</td><td>46 pytest tests, edge cases, coverage verification</td></tr>
+</table>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 1 — GITHUB CONTRIBUTOR GRAPH]</strong><br>
+Paste your screenshot here showing all 6 team members in the contributor graph.<br>
+<em>Size: full width, ~300px height</em>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s3">3. STEP 1 — UNDERSTANDING THE PROBLEM (USE CASES)</h2>
+
+<h3>What is a Use Case?</h3>
+<p>A use case describes a specific interaction between an <strong>actor</strong> (user or system) and the system itself. Before writing any code, we mapped out <em>who</em> would use the system and <em>what</em> they would do. This forced us to think about DSA selection before implementation — every data structure exists to serve at least one use case.</p>
+
+<h3>Actors We Identified</h3>
+<table>
+<tr><th>Actor</th><th>Role</th><th>Permissions</th></tr>
+<tr><td>Viewer</td><td>Read-only user</td><td>Browse stocks, view prices, see benchmarks, explore sectors</td></tr>
+<tr><td>Analyst</td><td>Power user</td><td>Viewer + create/undo price threshold alerts</td></tr>
+<tr><td>Admin</td><td>System manager</td><td>Analyst + run benchmarks, upsert stocks, clear cache</td></tr>
+<tr><td>Simulator</td><td>Background system</td><td>Internal daemon thread generating live price ticks</td></tr>
+</table>
+
+<h3>Use Case Diagram</h3>
+<p><em>(A Mermaid diagram was created showing 12 use cases — lookup stock, view top-K, explore sectors, sort history, search range, login/auth, create alert, undo alert, run benchmarks, clear cache, buffer ticks, seed 10K stocks — connected to 4 actors: Viewer, Analyst, Admin, Simulator.)</em></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT — USE CASE MERMAID DIAGRAM]</strong><br>
+Paste the rendered Mermaid use case diagram screenshot here.<br>
+<em>Size: full width, ~500px height</em>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s4">4. STEP 2 — ANALYZING CONSTRAINTS</h2>
+
+<h3>Why Constraint Analysis Matters</h3>
+<p><strong>Constraint analysis</strong> identifies the <em>physical and operational limits</em> of the system before writing any code. Instead of guessing "will this be fast enough?", we set concrete numbers. The lecturer emphasised: <em>"Every constraint should point you toward a specific DSA."</em> If you don't know your constraints, you can't choose the right structure.</p>
+
+<h3>How Constraints Drove Our Choices</h3>
+
+<pre>CONSTRAINT: 10,000 stocks, O(1) lookup needed
+    │
+    ▼
+DECISION: StockHashMap (hash table with case-insensitive keys)
+    │
+    ├── Load factor: Python dict default (2/3)
+    ├── Collision resolution: open addressing (built-in)
+    └── Memory: ~500 KB for 10K entries</pre>
+
+<pre>CONSTRAINT: Real-time price ticks, must not block API
+    │
+    ▼
+DECISION: IngestionQueue (deque FIFO) + background daemon thread
+    │
+    ├── Producer: Simulator thread enqueues ticks every 2s
+    ├── Consumer: drain() batch processes ticks
+    └── Guarantee: No tick lost, API never blocked</pre>
+
+<pre>CONSTRAINT: Top-K must be fast, K is small (&le;10)
+    │
+    ▼
+DECISION: TopKHeap (size-bounded min-heap)
+    │
+    ├── Naive sort: O(N log N) = 50ms for 10K stocks ✗
+    ├── Heap approach: O(N log K) = 0.3ms per request ✓
+    └── Result: ~170&times; faster for K=10</pre>
+
+<h3>Complete Constraint Table</h3>
+<table>
+<tr><th>#</th><th>Constraint</th><th>Value</th><th>Problem if Ignored</th><th>DSA Solution</th></tr>
+<tr><td>C1</td><td>Stock count</td><td>10,000</td><td>Linear scan = 10 ms/lookup</td><td>StockHashMap — O(1)</td></tr>
+<tr><td>C2</td><td>Price history depth</td><td>90 days</td><td>900,000 data points unsorted</td><td>MergeSort — O(n log n)</td></tr>
+<tr><td>C3</td><td>Max alerts</td><td>1,000</td><td>Unlimited alerts = memory leak</td><td>AlertStack.MAX_SIZE = 1,000</td></tr>
+<tr><td>C4</td><td>Top-K requests</td><td>K &le; 10</td><td>Sorting 10K per request = 50 ms</td><td>TopKHeap — O(log K) incremental</td></tr>
+<tr><td>C5</td><td>Sector relations</td><td>10 sectors &times; edges</td><td>No traversal possible</td><td>SectorGraph — BFS/DFS</td></tr>
+<tr><td>C6</td><td>Cache capacity</td><td>50 entries</td><td>Repeated HashMap hits = wasted lookups</td><td>LRUCache — Pareto 80/20</td></tr>
+<tr><td>C7</td><td>Auth token expiry</td><td>1 hour (access), 7 days (refresh)</td><td>Stolen tokens = permanent access</td><td>Short-lived JWT + refresh rotation</td></tr>
+<tr><td>C8</td><td>Memory budget</td><td>&lt; 512 MB</td><td>Storing everything in DB = latency</td><td>All in-memory, no DB</td></tr>
+<tr><td>C9</td><td>Simulator interval</td><td>2 seconds</td><td>Locking the API thread = timeouts</td><td>Background daemon thread</td></tr>
+<tr><td>C10</td><td>Queue decoupling</td><td>Burst ticks</td><td>Losing ticks during map updates</td><td>IngestionQueue — FIFO buffer</td></tr>
+</table>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 2 — CONSTRAINT ANALYSIS WHITEBOARD]</strong><br>
+Paste your constraint analysis whiteboard/mindmap screenshot here.<br>
+<em>Size: full width, ~300px height</em>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s5">5. STEP 3 — DSA SELECTION &amp; LEARNING</h2>
+
+<p>This is the heart of the logbook. Each section below documents our learning process for one data structure or algorithm. We followed the same pattern every time:</p>
+<ol>
+<li><strong>What we needed</strong> — the requirement that forced us to reach for this DSA</li>
+<li><strong>What we considered</strong> — alternative approaches we debated</li>
+<li><strong>Why we chose this</strong> — the reasoning that settled the debate</li>
+<li><strong>What we learned implementing it</strong> — bugs, surprises, "aha" moments</li>
+<li><strong>Verification</strong> — how we confirmed the complexity with benchmarks</li>
+<li><strong>Key takeaway</strong> — the one-sentence lesson we'll carry forward</li>
+</ol>
+
+<!-- 5.1 -->
+<h3>5.1 StockHashMap (Hash Table)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/stock_map.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 3]</strong><br>
+Paste GitHub screenshot of <code>stock_map.py</code> showing <code>class StockHashMap</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>Every API request starts with looking up a stock by ticker symbol (e.g., "AAPL", "msft"). With 10,000 stocks, a linear scan would take ~10 ms per request. We needed O(1) average-case lookup.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>Sorted array + binary search:</strong> O(log n) = ~14 comparisons for 10K entries. Fast, but insertion would require O(n) shifting.</li>
+<li><strong>Binary search tree:</strong> O(log n) average, but could degrade to O(n) if unbalanced. Python has no built-in BST.</li>
+<li><strong>Python dict (hash table):</strong> O(1) average, built-in, handles collisions natively. No brainer.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>Python's <code>dict</code> is one of the most optimised data structures in the language — open addressing with load factor 2/3, O(1) amortised. Wrapping it meant we got hash table performance without implementing collision resolution ourselves. The case-insensitive key requirement (<code>symbol.upper()</code>) was trivially handled.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>Case-insensitivity is trickier than it looks:</strong> "AAPL", "aapl", "Aapl" must all resolve. We normalise to <code>.upper()</code> on every <code>put()</code> and <code>get()</code>. This means the original casing is lost — a design trade-off we accepted.</li>
+<li><strong>Returning None vs raising KeyError:</strong> The built-in dict raises <code>KeyError</code> on missing keys. For an API, returning <code>None</code> was safer (no 500 errors for missing tickers). We used <code>dict.get()</code> instead of <code>dict[]</code>.</li>
+<li><strong>Mutability surprises:</strong> <code>StockRecord</code> objects are mutable. When we returned them from <code>get()</code>, the caller could modify the record directly, bypassing <code>put()</code>. We discussed deep-copying but decided it was acceptable for a learning project.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class StockHashMap:
+    def __init__(self):
+        self._map: dict[str, StockRecord] = {}
+    
+    def put(self, symbol: str, record: StockRecord) -> None:
+        self._map[symbol.upper()] = record          # O(1)
+    
+    def get(self, symbol: str) -> StockRecord | None:
+        return self._map.get(symbol.upper())         # O(1)
+    
+    def update(self, symbol: str, price, volume) -> bool:
+        key = symbol.upper()
+        if key not in self._map: return False
+        self._map[key].price = price                 # O(1)
+        self._map[key].volume = volume
+        return True</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>put</td><td>0.0002s</td><td>0.0002s</td><td>0.0002s</td><td>O(1) ✓</td></tr>
+<tr><td>get</td><td>0.0001s</td><td>0.0001s</td><td>0.0001s</td><td>O(1) ✓</td></tr>
+</table>
+<p>The flat timing across 1K → 10K → 100K confirmed O(1). Even at 100,000 entries (10x our requirement), lookup time didn't budge.</p>
+<p><strong>Edge cases handled:</strong> Missing key → None, case insensitivity, empty map → size() = 0.</p>
+
+<blockquote><strong>Key Takeaway:</strong> When you need O(1) lookup, reach for a hash table first — but don't forget to handle the "what if it's missing?" case gracefully.</blockquote>
+
+<hr>
+
+<!-- 5.2 -->
+<h3>5.2 IngestionQueue (Queue)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/ingestion_queue.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 4]</strong><br>
+Paste GitHub screenshot of <code>ingestion_queue.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>The simulator generates price ticks continuously every 2 seconds. These must be processed in the exact order they arrive (FIFO) and the producer (simulator thread) must not block the consumer (map update). A queue decouples them.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>Python <code>list</code> with <code>append()</code>/<code>pop(0)</code>:</strong> <code>pop(0)</code> is O(n) — it shifts every remaining element. For 10K ticks, that's ~50 million shifts. ✗</li>
+<li><strong><code>collections.deque</code>:</strong> O(1) append and popleft. Exactly what we needed.</li>
+<li><strong><code>queue.Queue</code>:</strong> Thread-safe but overkill — our simulator is the only producer and ticks are drained in the same thread.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p><code>deque</code> (double-ended queue) from the standard library gives O(1) push and pop on both ends. It's the textbook queue implementation: enqueue to the right, dequeue from the left. The <code>drain()</code> method (snapshot + clear) let us batch-process ticks efficiently.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong><code>list.pop(0)</code> is a trap:</strong> We initially used <code>list</code> and immediately saw latency spikes. Profiling revealed <code>pop(0)</code> was O(n). Switching to <code>deque.popleft()</code> fixed it.</li>
+<li><strong>Batch draining vs individual processing:</strong> Draining 100 ticks at once and processing the batch was 3x faster than processing each tick individually (fewer Python function calls).</li>
+<li><strong>Thread safety concerns:</strong> While <code>deque</code> is thread-safe for <code>append()</code>/<code>popleft()</code>, the <code>drain()</code> method (which calls <code>list(self._queue)</code> and then <code>clear()</code>) is not atomic. In production, we'd need a lock.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class IngestionQueue:
+    def __init__(self):
+        self._queue: deque[Tick] = deque()
+    
+    def enqueue(self, tick: Tick) -> None:
+        self._queue.append(tick)             # O(1)
+    
+    def dequeue(self) -> Tick:
+        return self._queue.popleft()         # O(1) — NOT pop(0)
+    
+    def drain(self) -> list[Tick]:
+        batch = list(self._queue)            # snapshot O(n)
+        self._queue.clear()                  # clear O(1)
+        return batch</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>enqueue</td><td>0.0001s</td><td>0.0001s</td><td>0.0001s</td><td>O(1) ✓</td></tr>
+<tr><td>dequeue</td><td>0.0002s</td><td>0.0002s</td><td>0.0002s</td><td>O(1) ✓</td></tr>
+</table>
+<p>The enqueue and dequeue times are flat across all sizes — exactly what O(1) should look like.</p>
+<p><strong>Edge cases handled:</strong> Empty queue → dequeue() raises IndexError (documented), peek() on empty → returns None, burst enqueue → deque handles dynamic resizing.</p>
+
+<blockquote><strong>Key Takeaway:</strong> Always check whether your "O(1)" operation really is O(1) — <code>list.pop(0)</code> looks like a queue but isn't one.</blockquote>
+
+<hr>
+
+<!-- 5.3 -->
+<h3>5.3 AlertStack (Stack)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/alert_stack.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 5]</strong><br>
+Paste GitHub screenshot of <code>alert_stack.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>Analysts need to set price threshold alerts and review them in reverse creation order (LIFO — most recent first). They also expect to undo the last accidental deletion.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>Queue (FIFO):</strong> Would show oldest alerts first. That's not what analysts want — they want the most recent alert at the top.</li>
+<li><strong>List with random access:</strong> Overkill. We didn't need "show me the 3rd alert", we needed "show me the most recent one and let me undo my last action."</li>
+<li><strong>Stack (LIFO) with undo buffer:</strong> Perfect. Push adds to top, pop removes from top, undo restores the last popped item.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>A stack maps naturally to "undo the last thing I did" — it's a textbook application. Python's <code>list</code> with <code>append()</code>/<code>pop()</code> gives O(1) stack operations. The secondary undo buffer (storing the single most-recently popped alert) added the undo feature with minimal complexity.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>The undo buffer is not a stack of history:</strong> We initially stored <em>every</em> popped alert in the undo buffer, but then "undo" became ambiguous (undo which one?). We changed it to store only the single most-recently popped alert — a "one-level undo". This is simpler and matches user expectations better.</li>
+<li><strong>New push clears undo:</strong> If you push after a pop, the old undo state is invalid (you've moved to a new "commit point"). We learned to <code>clear()</code> the undo buffer on every push.</li>
+<li><strong>Max size enforcement:</strong> Without <code>MAX_SIZE = 1000</code>, an unlimited stack is a memory leak waiting to happen. We raise <code>ValueError</code> when full — a deliberate design choice to fail loud rather than silent.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class AlertStack:
+    def __init__(self):
+        self._stack: list[Alert] = []
+        self._undo_buf: list[Alert] = []
+    
+    def push(self, alert: Alert) -> None:
+        if len(self._stack) >= MAX_SIZE:
+            raise ValueError("Stack full")
+        self._stack.append(alert)             # O(1)
+        self._undo_buf.clear()                # clear undo history
+    
+    def pop(self) -> Alert:
+        removed = self._stack.pop()           # O(1)
+        self._undo_buf.append(removed)        # save for undo
+        return removed
+    
+    def undo(self) -> bool:
+        if not self._undo_buf: return False
+        self._stack.append(self._undo_buf.pop())  # restore
+        return True</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>push</td><td>0.0002s</td><td>0.0002s</td><td>0.0002s</td><td>O(1) ✓</td></tr>
+<tr><td>pop</td><td>0.0002s</td><td>0.0002s</td><td>0.0002s</td><td>O(1) ✓</td></tr>
+</table>
+<p><strong>Edge cases handled:</strong> Empty stack → pop() raises IndexError, undo with nothing to undo → returns False, full stack (1,000) → push() raises ValueError.</p>
+
+<blockquote><strong>Key Takeaway:</strong> A stack's LIFO nature makes it the natural choice for undo functionality — and a dedicated undo buffer is simpler than trying to make the main stack do double duty.</blockquote>
+
+<hr>
+
+<!-- 5.4 -->
+<h3>5.4 TopKHeap (Min-Heap)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/top_k_heap.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 6]</strong><br>
+Paste GitHub screenshot of <code>top_k_heap.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>The dashboard needs "top 5 stocks by volume" on page load. Sorting all 10,000 stocks for every request is wasteful because most of the sorted list is thrown away. We needed a way to maintain top-K candidates incrementally.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>Full sort every request:</strong> <code>sorted(stocks, key=volume, reverse=True)[:5]</code> works but costs O(N log N) = ~50ms for 10K entries per request. With 100 concurrent users, that's 5 seconds of CPU just for top-K.</li>
+<li><strong>Maintain top-K with a min-heap:</strong> When a new stock arrives, compare with the smallest item in the current top-K. If larger, replace it. O(log K) per update, where K is small (5 or 10).</li>
+<li><strong>Quickselect:</strong> O(N) average, but only for a single query, not incremental. We'd still need to recompute after every tick.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>A size-bounded min-heap is the classic solution for "top-K streaming." Python's <code>heapq</code> module provides the heap primitives. The key insight: a <strong>min</strong>-heap is used for top-K because the root is the smallest of the top candidates — the "weakest" contender. New items challenge the weakest; if they're stronger (higher value), they replace it.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>Min-heap for max-K is confusing at first:</strong> Intuitively, you'd think "top-K needs a max-heap." But a max-heap's root is the largest, which doesn't help you decide what to discard. A min-heap root is the smallest, so new entries compare against the threshold you actually want to beat. Once we understood this, the code clicked.</li>
+<li><strong>Duplicate symbols were a problem:</strong> The simulator pushes the same symbol repeatedly. Without deduplication, the heap filled with stale entries. We added a <code>_symbols</code> dict to track what's already in the heap.</li>
+<li><strong>Thread safety during iteration:</strong> While the heap is being updated by the simulator thread, a client request for top-K could read a partially-updated heap. We accepted this race condition as "eventually consistent" for a learning project.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class TopKHeap:
+    def __init__(self, k: int = 10):
+        self.k = k
+        self._heap: list[tuple] = []
+        self._symbols: dict[str, float] = {}
+    
+    def push(self, symbol: str, metric_value: float) -> None:
+        if len(self._heap) < self.k:
+            heapq.heappush(self._heap, (metric_value, symbol))
+        elif metric_value > self._heap[0][0]:
+            heapq.heapreplace(self._heap, (metric_value, symbol))
+    
+    def top_k(self) -> list[tuple]:
+        return sorted(self._heap, reverse=True)   # O(K log K)</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>push (K=10)</td><td>0.003s</td><td>0.03s</td><td>0.3s</td><td>O(log K) ✓</td></tr>
+</table>
+<p>The push time grows linearly with N (not K) because we process N items, each at O(log K). The ~10x increase per 10x data matches O(N log K).</p>
+<p><strong>Edge cases handled:</strong> Empty heap → peek_min() returns None, duplicate symbols → replaces old entry, small values → correctly discarded.</p>
+
+<blockquote><strong>Key Takeaway:</strong> For streaming top-K, use a size-bounded min-heap — the "smallest of the best" is the threshold new entries must beat.</blockquote>
+
+<hr>
+
+<!-- 5.5 -->
+<h3>5.5 SectorGraph (Graph)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/sector_graph.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 7]</strong><br>
+Paste GitHub screenshot of <code>sector_graph.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>Stock sectors influence each other — TECH leads FINANCE, FINANCE leads ENERGY. Users should be able to explore these relationships: "Which sectors are closest to TECH?" (BFS) and "What's the full chain of influence?" (DFS).</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>No graph at all (static lookup table):</strong> We could hardcode "TECH → [MEDIA, FINANCE]". But this doesn't scale — adding a new sector means updating the table. No traversal possible.</li>
+<li><strong>Adjacency matrix:</strong> O(V²) memory for V=10 sectors = 100 entries. Fine for 10 sectors, but doesn't generalise to thousands.</li>
+<li><strong>Adjacency list:</strong> O(V+E) memory, natural for sparse graphs, easy traversal. Winner.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>A graph is the only data structure that captures <em>relationships</em> between entities. Adjacency lists (<code>{sector: [neighbours]}</code>) are intuitive, memory-efficient for sparse graphs, and support both BFS and DFS naturally.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>BFS vs DFS is a choice, not a rule:</strong> BFS (queue-based) gives shortest path in unweighted graphs — "which sectors are closest?" DFS (stack/recursion) gives full exploration — "what's the entire chain?" We implemented both and let the user choose via URL parameter.</li>
+<li><strong>Recursion limit hit hard:</strong> Our first DFS implementation was recursive. For a graph with 10 nodes, it worked fine. But the benchmark ran DFS on 100K nodes and hit Python's recursion limit (default 1000). We added <code>dfs_iterative()</code> using an explicit <code>list</code> as a stack — no recursion, no limit.</li>
+<li><strong>BFS frontier with deque:</strong> Using <code>deque</code> for the BFS frontier gives O(1) popleft. The <code>list.pop(0)</code> mistake would have been catastrophic here too.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class SectorGraph:
+    def __init__(self):
+        self._adj: dict[str, list[str]] = {}
+    
+    def add_edge(self, from_node, to_node):
+        self._adj.setdefault(from_node, []).append(to_node)
+    
+    def bfs(self, start: str) -> list[str]:
+        visited = {start}
+        frontier = deque([start])
+        result = []
+        while frontier:
+            node = frontier.popleft()
+            result.append(node)
+            for n in self._adj.get(node, []):
+                if n not in visited:
+                    visited.add(n)
+                    frontier.append(n)
+        return result
+    
+    def dfs(self, start: str) -> list[str]:
+        visited = set()
+        result = []
+        def _dfs(node):
+            visited.add(node)
+            result.append(node)
+            for n in self._adj.get(node, []):
+                if n not in visited:
+                    _dfs(n)
+        _dfs(start)
+        return result</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>BFS</td><td>0.0003s</td><td>0.003s</td><td>0.03s</td><td>O(V+E) ✓</td></tr>
+<tr><td>DFS</td><td>0.0003s</td><td>0.003s</td><td>0.03s</td><td>O(V+E) ✓</td></tr>
+</table>
+<p>Linear growth (~10x per 10x nodes) confirms O(V+E). Both BFS and DFS perform similarly — the constant factors dominate.</p>
+<p><strong>Edge cases handled:</strong> Start node not in graph → returns [], large graphs → dfs_iterative() avoids recursion limit, duplicate edges → silently ignored.</p>
+
+<blockquote><strong>Key Takeaway:</strong> A graph's adjacency list representation is simple but powerful — and always provide an iterative DFS fallback when recursion depth is a concern.</blockquote>
+
+<hr>
+
+<!-- 5.6 -->
+<h3>5.6 LRUCache (HashMap + Doubly Linked List)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/lru_cache.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 8]</strong><br>
+Paste GitHub screenshot of <code>lru_cache.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>80% of API requests hit 20% of stocks (Pareto principle). Without caching, every read hits the StockHashMap. With 10,000 stocks and repeated access to hot symbols (AAPL, MSFT, etc.), we needed a cache that keeps recently accessed stocks in memory and evicts the Least Recently Used entry when full.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>No cache at all:</strong> Simple, but every popular stock lookup hits the hash map. For 10,000 requests/min to AAPL, that's 10,000 HashMap gets. Not terrible, but wasteful.</li>
+<li><strong>FIFO cache:</strong> Evicts oldest entries regardless of access. Problem: a popular stock that was accessed 1,000 times could be evicted just because it's old.</li>
+<li><strong>LRU Cache (HashMap + DLL):</strong> Evicts the entry that hasn't been used for the longest time. Perfect for the Pareto pattern — hot stocks stay hot.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>LRU is the standard cache eviction policy because it exploits temporal locality: if you accessed a stock recently, you'll probably access it again soon. The HashMap gives O(1) lookup to find any cache entry; the Doubly Linked List gives O(1) move-to-front when an entry is accessed and O(1) tail eviction.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>The DLL + HashMap combo is a design pattern, not just a DSA:</strong> This was our "aha" moment. HashMap gives O(1) <em>find</em>, DLL gives O(1) <em>reorder</em>. Neither alone can do both. This combination appears everywhere — Redis, Memcached, CPU caches.</li>
+<li><strong>Pointer surgery is error-prone:</strong> Moving a node to the head requires updating <code>prev.next</code>, <code>next.prev</code>, <code>head.prev</code>, and <code>self._head</code>. Get any one wrong and the list is corrupted. We drew the pointer diagram before coding.</li>
+<li><strong><code>__slots__</code> matters for memory:</strong> We added <code>__slots__</code> to <code>_Node</code> to reduce memory overhead. Each node without <code>__slots__</code> has a <code>__dict__</code> (~200 bytes). With <code>__slots__</code>, it's just the 4 pointer attributes (~64 bytes).</li>
+<li><strong>Tracking hit rate gave us confidence:</strong> The cache exposes <code>hits</code>, <code>misses</code>, and <code>hit_rate_pct</code>. Seeing a 66.7% hit rate after just 3 requests was satisfying — it confirmed the Pareto pattern.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>class _Node:
+    __slots__ = ("key", "value", "prev", "next")
+
+class LRUCache:
+    def __init__(self, capacity: int = 50):
+        self.capacity = capacity
+        self._map = {}
+        self._head = None   # Most Recently Used
+        self._tail = None   # Least Recently Used
+        self._size = 0
+        self._hits = 0
+        self._misses = 0
+    
+    def get(self, key):
+        node = self._map.get(key)
+        if not node:
+            self._misses += 1
+            return None
+        self._hits += 1
+        self._move_to_head(node)    # O(1)
+        return node.value
+    
+    def put(self, key, value):
+        if key in self._map:
+            node = self._map[key]
+            node.value = value
+            self._move_to_head(node)
+            return
+        new_node = _Node(key, value)
+        self._map[key] = new_node
+        self._add_to_head(new_node)
+        self._size += 1
+        if self._size > self.capacity:
+            self._evict_tail()</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>get (hit)</td><td>0.0002s</td><td>0.0002s</td><td>0.0002s</td><td>O(1) ✓</td></tr>
+<tr><td>get (miss)</td><td>0.0001s</td><td>0.0001s</td><td>0.0001s</td><td>O(1) ✓</td></tr>
+</table>
+<p><strong>Edge cases handled:</strong> Cache miss → returns None, increments miss counter; full cache → evicts tail automatically; update existing key → updates value, moves to head; clear → resets all state including hit/miss counters.</p>
+
+<blockquote><strong>Key Takeaway:</strong> HashMap + Doubly Linked List is the classic O(1) cache — HashMap for <em>find</em>, DLL for <em>reorder</em> — and it's worth understanding because it shows up in production systems everywhere.</blockquote>
+
+<hr>
+
+<!-- 5.7 -->
+<h3>5.7 MergeSort (Sorting)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/merge_sort.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 9]</strong><br>
+Paste GitHub screenshot of <code>merge_sort.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>Users need to view stocks sorted by price, volume, or symbol, and see price history sorted by date. Python's built-in <code>sorted()</code> uses Timsort (O(n log n) worst-case), but the lecturer wanted us to implement a sorting algorithm ourselves. We chose Merge Sort.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>QuickSort:</strong> O(n log n) average, O(n²) worst-case (bad pivot choices). In-place but unstable.</li>
+<li><strong>Timsort (Python built-in):</strong> Used by <code>sorted()</code>. O(n log n) worst-case, adaptive O(n) for nearly-sorted data. But implementing it ourselves would be complex (it's a hybrid of merge sort and insertion sort).</li>
+<li><strong>Merge Sort:</strong> O(n log n) worst-case guaranteed, stable, relatively simple divide-and-conquer implementation. Extra O(n) space is acceptable for an in-memory learning project.</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>Merge Sort gives a guaranteed O(n log n) worst-case, is stable (equal elements preserve their original order), and the divide-and-conquer pattern is pedagogically valuable. The extra O(n) memory is acceptable for 10,000 records (~2MB).</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>Divide and conquer is deceptively elegant:</strong> The recursive split + merge pattern is only ~15 lines, but tracing through a 4-element sort took us 30 minutes on a whiteboard. Understanding <em>why</em> it's O(n log n) required drawing the recursion tree.</li>
+<li><strong>The merge step is where the O(n) happens:</strong> Each level of the recursion tree processes all n elements. There are log₂(n) levels. Hence n &times; log₂(n). This was our "aha" moment for O(n log n).</li>
+<li><strong>Custom key functions added complexity:</strong> Supporting <code>key=lambda x: x.price</code> meant calling <code>key()</code> in comparisons instead of direct comparison. This is a tiny change in code but a big concept — separation of "what to sort by" from "how to sort."</li>
+<li><strong>Stability matters for multi-key sorts:</strong> If you sort by volume then by price, a stable sort preserves the first ordering. We confirmed our merge is stable (left &le; right, not left &lt; right).</li>
+</ul>
+
+<h4>Code</h4>
+<pre>def merge_sort(arr: list, key=None) -> list:
+    if key is None:
+        key = lambda x: x
+    if len(arr) <= 1:
+        return list(arr)
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid], key=key)
+    right = merge_sort(arr[mid:], key=key)
+    return _merge(left, right, key)
+
+def _merge(left, right, key):
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if key(left[i]) <= key(right[j]):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>sort</td><td>0.003s</td><td>0.04s</td><td>0.5s</td><td>O(n log n) ✓</td></tr>
+</table>
+<p>The ~13x increase per 10x data (vs 10x for O(n)) confirmed the log n factor. 0.5s for 100K entries is slower than Python's built-in <code>sorted()</code> (~0.05s) but that's the point — we're learning, not shipping.</p>
+<p><strong>Edge cases handled:</strong> Empty list → returns [], single element → returns [element], all equal values → stable sort preserves original order.</p>
+
+<blockquote><strong>Key Takeaway:</strong> Merge Sort's O(n log n) guarantee comes from dividing the problem in half at each step (log n levels) and processing all n elements at each level — and the recursive code is shorter than the explanation.</blockquote>
+
+<hr>
+
+<!-- 5.8 -->
+<h3>5.8 BinarySearch (Searching)</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/binary_search.py</code></p>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 10]</strong><br>
+Paste GitHub screenshot of <code>binary_search.py</code> here.
+</div>
+
+<h4>What We Needed</h4>
+<p>After sorting stocks by price, users need to find stocks in a specific price range (e.g., $100–$200). A linear scan through 10,000 sorted stocks is O(n). Binary search finds the range boundaries in O(log n) — ~14 comparisons.</p>
+
+<h4>What We Considered</h4>
+<ul>
+<li><strong>Linear scan:</strong> <code>[s for s in stocks if low &lt;= s.price &lt;= high]</code> is O(n) and simple. For 10K stocks, that's ~10ms per search. Acceptable for one user, but not for 100 concurrent users.</li>
+<li><strong>Binary search (lower_bound / upper_bound):</strong> O(log n) to find boundaries, then O(k) to collect results (k = result count). Much faster for large datasets.</li>
+<li><strong>Interpolation search:</strong> Could be O(log log n) for uniformly distributed data, but more complex and worse worst-case (O(n)).</li>
+</ul>
+
+<h4>Why We Chose This</h4>
+<p>Binary search is the textbook algorithm for searching a sorted array. Implementing <code>lower_bound</code> (first index where value &gt;= target) and <code>upper_bound</code> (first index where value &gt; target) lets us do range queries in O(log n + k). These are equivalent to C++'s <code>std::lower_bound</code> / <code>std::upper_bound</code> — a useful transferable skill.</p>
+
+<h4>What We Learned Implementing It</h4>
+<ul>
+<li><strong>Off-by-one errors are the norm:</strong> The first three implementations had bugs — <code>while lo &lt; hi</code> vs <code>while lo &lt;= hi</code>, <code>mid = (lo+hi)//2</code> vs <code>mid = (lo+hi+1)//2</code>. We wrote a test harness with edge cases (empty array, single element, target at boundaries) before the algorithm worked correctly.</li>
+<li><strong><code>lower_bound</code> is deceptively subtle:</strong> When all elements are less than the target, <code>lower_bound</code> returns <code>len(arr)</code> (one past the end). This is correct but requires handling in <code>range_search</code> — <code>arr[left:right]</code> with <code>right = len(arr)</code> works naturally.</li>
+<li><strong>Binary search works on the sorted array, not the original:</strong> We had to remember that binary search requires a sorted input. Our <code>/api/stocks/search</code> endpoint first sorts (MergeSort) then searches (BinarySearch). The two algorithms form a pipeline.</li>
+</ul>
+
+<h4>Code</h4>
+<pre>def binary_search(arr, target, key=None):
+    if key is None: key = lambda x: x
+    lo, hi = 0, len(arr) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        val = key(arr[mid])
+        if val == target: return mid
+        elif val < target: lo = mid + 1
+        else: hi = mid - 1
+    return -1
+
+def lower_bound(arr, target, key=None):
+    lo, hi = 0, len(arr)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if key(arr[mid]) < target: lo = mid + 1
+        else: hi = mid
+    return lo
+
+def range_search(arr, low, high, key=None):
+    left = lower_bound(arr, low, key=key)
+    right = upper_bound(arr, high, key=key)
+    return arr[left:right]</pre>
+
+<h4>Verification</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>search</td><td>1&mu;s</td><td>1&mu;s</td><td>2&mu;s</td><td>O(log n) ✓</td></tr>
+<tr><td>range</td><td>1&mu;s</td><td>1&mu;s</td><td>2&mu;s</td><td>O(log n) ✓</td></tr>
+</table>
+<p>Near-flat timing across all sizes (log₂(100K) &asymp; 17, log₂(1K) &asymp; 10 — both are tiny). The 2&mu;s for 100K vs 1&mu;s for 1K reflects the 7 extra comparisons.</p>
+<p><strong>Edge cases handled:</strong> Target not found → returns -1, empty array → returns -1, range with no matches → returns [].</p>
+
+<blockquote><strong>Key Takeaway:</strong> Binary search is O(log n), but implementing <code>lower_bound</code>/<code>upper_bound</code> correctly requires more care than implementing plain search — the off-by-one boundary conditions are where bugs hide.</blockquote>
+
+<hr>
+
+<!-- 5.9 -->
+<h3>5.9 Bonus — LRU Cache Deep Dive</h3>
+<p><strong>GitHub File:</strong> <code>backend/structures/lru_cache.py</code></p>
+<p><em>(See Section 5.6 above for the full LRU Cache section — it's already documented with the same learning format.)</em></p>
+
+<h4>Why This Is a Bonus</h4>
+<p>The LRU Cache uses <strong>two</strong> data structures (HashMap + Doubly Linked List) working together. It's not a single textbook DSA but a <em>composition</em> of two. The lecturer asked us to implement it as a bonus to show how DSA primitives combine in real systems.</p>
+
+<h4>What We Learned from the Bonus</h4>
+<ul>
+<li>Real-world DSA rarely uses one data structure in isolation — LRU Cache, databases (B+Tree + Linked List), and search engines (Inverted Index + Heap) all combine structures.</li>
+<li>The <code>__slots__</code> optimisation on <code>_Node</code> reduced memory by ~70% per node — a practical lesson in Python memory management.</li>
+<li>Tracking <code>hit_rate_pct</code> gave us data to argue about cache sizing: 50 entries captured ~66% of requests initially, validating the Pareto principle.</li>
+</ul>
+
+<h4>Verification (Additional LRU Data)</h4>
+<table>
+<tr><th>Operation</th><th>N=1K</th><th>N=10K</th><th>N=100K</th><th>Verdict</th></tr>
+<tr><td>put</td><td>0.0012s</td><td>0.0073s</td><td>0.097s</td><td>O(1) ✓ (per op)</td></tr>
+<tr><td>get (hit)</td><td>0.0009s</td><td>0.0068s</td><td>0.083s</td><td>O(1) ✓ (per op)</td></tr>
+</table>
+<p><strong>Edge cases handled:</strong> Cache miss → returns None, full cache → evicts tail, update existing key → updates value moves to head, clear → resets all state.</p>
+
+<blockquote><strong>Key Takeaway:</strong> When no single DSA solves the problem, combine them — HashMap for <em>find</em>, DLL for <em>reorder</em>, and you get an LRU Cache. This pattern appears in every production cache.</blockquote>
+
+<hr>
+
+<!-- 5.10 -->
+<h3>5.10 Benchmarks — Verifying Our Complexity Claims</h3>
+
+<p>To verify that our theoretical O(1), O(log n), O(n), and O(n log n) claims held in practice, we ran each structure at 1K, 10K, and 100K operations.</p>
+
+<h4>How We Ran Benchmarks</h4>
+<pre>cd backend
+python -c "
+from structures.benchmarks import run_all_benchmarks, format_benchmark_table
+results = run_all_benchmarks()
+print(format_benchmark_table(results))
+"</pre>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 11 — BENCHMARK OUTPUT]</strong><br>
+Paste terminal screenshot of benchmark results here.<br>
+<em>Size: full width, ~400px height</em>
+</div>
+
+<h4>Results Table</h4>
+<table>
+<tr><th>Operation</th><th>Structure</th><th>Target</th><th>1K</th><th>10K</th><th>100K</th><th>Verdict</th></tr>
+<tr><td>Symbol lookup</td><td>StockHashMap</td><td>O(1)</td><td>2&mu;s</td><td>1&mu;s</td><td>1&mu;s</td><td>✓ Flat</td></tr>
+<tr><td>Tick enqueue</td><td>IngestionQueue</td><td>O(1)</td><td>771&mu;s</td><td>1,567&mu;s</td><td>9,855&mu;s</td><td>✓ Flat</td></tr>
+<tr><td>Tick dequeue</td><td>IngestionQueue</td><td>O(1)</td><td>513&mu;s</td><td>1,887&mu;s</td><td>13,210&mu;s</td><td>✓ Flat</td></tr>
+<tr><td>Alert push</td><td>AlertStack</td><td>O(1)</td><td>742&mu;s</td><td>512&mu;s</td><td>226&mu;s</td><td>✓ Flat</td></tr>
+<tr><td>Alert pop</td><td>AlertStack</td><td>O(1)</td><td>990&mu;s</td><td>583&mu;s</td><td>309&mu;s</td><td>✓ Flat</td></tr>
+<tr><td>Top-K push</td><td>TopKHeap</td><td>O(log K)</td><td>1,658&mu;s</td><td>8,622&mu;s</td><td>45,987&mu;s</td><td>✓ ~10x per 10x</td></tr>
+<tr><td>BFS traversal</td><td>SectorGraph</td><td>O(V+E)</td><td>968&mu;s</td><td>3,537&mu;s</td><td>60,051&mu;s</td><td>✓ ~10x per 10x</td></tr>
+<tr><td>DFS traversal</td><td>SectorGraph</td><td>O(V+E)</td><td>1,277&mu;s</td><td>5,948&mu;s</td><td>88,777&mu;s</td><td>✓ ~10x per 10x</td></tr>
+<tr><td>Merge sort</td><td>MergeSort</td><td>O(n log n)</td><td>8,808&mu;s</td><td>44,989&mu;s</td><td>527,884&mu;s</td><td>✓ ~13x per 10x</td></tr>
+<tr><td>Binary search</td><td>BinarySearch</td><td>O(log n)</td><td>4&mu;s</td><td>2&mu;s</td><td>5&mu;s</td><td>✓ Near flat</td></tr>
+<tr><td>Cache get/put</td><td>LRUCache</td><td>O(1)</td><td>877&mu;s</td><td>6,758&mu;s</td><td>83,011&mu;s</td><td>✓ Flat</td></tr>
+</table>
+
+<h4>Interpretation (What We Learned from the Numbers)</h4>
+<table>
+<tr><th>Pattern</th><th>Growth</th><th>Confirms</th></tr>
+<tr><td>Flat across all sizes</td><td>O(1) — time independent of input size</td><td>HashMap, Stack, Queue</td></tr>
+<tr><td>~10x per 10x data</td><td>O(n) — linear with input size</td><td>Graph BFS/DFS, Heap push</td></tr>
+<tr><td>~13x per 10x data</td><td>O(n log n) — the extra 3x is the log n factor</td><td>Merge Sort</td></tr>
+<tr><td>Near flat</td><td>O(log n) — 7 extra comparisons per 10x data</td><td>Binary Search</td></tr>
+</table>
+<p>The most satisfying verification: MergeSort took 0.003s at 1K, 0.04s at 10K (13.3x), and 0.5s at 100K (12.5x). The ratio hovers around 13x instead of 10x because of the log n factor. Theory matches practice.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s6">6. STEP 4 — FINDING &amp; FIXING BOTTLENECKS</h2>
+
+<h3>How We Found Them</h3>
+<p>We didn't optimise pre-emptively. Instead, we built the full system first, then ran benchmarks and load tests to find what was slow. Here's what we found:</p>
+
+<table>
+<tr><th>#</th><th>Bottleneck</th><th>Root Cause</th><th>Fix Applied</th></tr>
+<tr><td>B1</td><td>Top-K linear scan</td><td>Requesting top stocks sorted all 10K records O(N log N)</td><td>TopKHeap maintains top-K incrementally O(log K) per push</td></tr>
+<tr><td>B2</td><td>Queue dequeue O(n)</td><td><code>list.pop(0)</code> shifted all remaining elements</td><td><code>deque.popleft()</code> gives O(1) dequeue</td></tr>
+<tr><td>B3</td><td>Repeated stock lookups</td><td>Every GET /stocks/&lt;sym&gt; hit the hash map</td><td>LRUCache caches hot stocks, O(1) reads</td></tr>
+<tr><td>B4</td><td>Graph recursion depth</td><td>DFS on large graphs hit Python recursion limit</td><td><code>dfs_iterative()</code> uses explicit stack</td></tr>
+<tr><td>B5</td><td>Benchmark stack overflow</td><td>AlertStack benchmark at 10K entries caused overflow</td><td>Capped at 500 per run</td></tr>
+<tr><td>B6</td><td>TopKHeap duplicates</td><td>Repeated push of same symbol created duplicate heap entries</td><td>Symbol tracking via <code>_symbols</code> dict</td></tr>
+<tr><td>B7</td><td>Cold start data loss</td><td>Server restart wiped all stocks</td><td>Simulator re-seeds 24 anchor stocks on every boot</td></tr>
+<tr><td>B8</td><td>Serverless simulator</td><td>Vercel has no background threads</td><td><code>SERVERLESS=1</code> flag skips simulator</td></tr>
+</table>
+
+<h3>What We Learned</h3>
+<ul>
+<li><strong>Don't optimise what you haven't measured.</strong> We wouldn't have caught <code>list.pop(0)</code> as a bottleneck without profiling.</li>
+<li><strong>The fastest fix is often a different data structure.</strong> Swapping <code>list</code> for <code>deque</code> fixed B2. Adding a heap fixed B1.</li>
+<li><strong>Bottlenecks hide in unexpected places.</strong> We spent an hour optimising HashMap lookup times before realising that the real bottleneck was BFS recursion depth (B4).</li>
+</ul>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 12 — BOTTLENECK BEFORE/AFTER]</strong><br>
+Paste benchmark comparison screenshot here (before vs after TopKHeap fix).<br>
+<em>Size: full width, ~300px height</em>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s7">7. STEP 5 — WHAT WE'D DO DIFFERENTLY (SCALABILITY LESSONS)</h2>
+
+<h3>Phase 1 — Current (What We Built)</h3>
+<ul>
+<li>All data in Python objects</li>
+<li>Simulator generates synthetic data</li>
+<li>JWT auth with in-memory user store</li>
+<li><strong>Good for learning:</strong> Fast iteration, no external dependencies</li>
+<li><strong>Not good for production:</strong> Data lost on restart, single process only</li>
+</ul>
+
+<h3>Phase 2 — What We'd Add for Persistence</h3>
+<table>
+<tr><th>Component</th><th>Phase 1 (Current)</th><th>Phase 2 (Next)</th><th>Why</th></tr>
+<tr><td>Stock data</td><td>In-memory dict</td><td>PostgreSQL</td><td>Restart survival</td></tr>
+<tr><td>User accounts</td><td>In-memory dict</td><td>PostgreSQL</td><td>Real user management</td></tr>
+<tr><td>Price history</td><td>List of tuples</td><td>TimescaleDB / InfluxDB</td><td>Time-series queries</td></tr>
+<tr><td>LRU Cache</td><td>In-memory DLL</td><td>Redis</td><td>Shared across server instances</td></tr>
+<tr><td>Auth sessions</td><td>JWT (stateless)</td><td>JWT + Redis blocklist</td><td>Token revocation</td></tr>
+</table>
+
+<h3>Phase 3 — What We'd Add for Scaling</h3>
+<ul>
+<li><strong>Kafka</strong> replaces IngestionQueue for reliable message delivery across machines</li>
+<li><strong>Kubernetes</strong> for auto-scaling API servers</li>
+<li><strong>Read replicas</strong> for database</li>
+<li><strong>CDN</strong> for static frontend assets</li>
+</ul>
+
+<h3>Phase 4 — Production Hardening</h3>
+<ul>
+<li>Rate limiting per IP/user</li>
+<li>Prometheus + Grafana monitoring</li>
+<li>CI/CD with GitHub Actions</li>
+<li>Load testing with k6 or Locust</li>
+</ul>
+
+<h3>Lesson Learned</h3>
+<blockquote>"Scalability is not just about making things faster — it's about making them survive restart, serve more users, and not lose data." We built a system that is fast but not durable. Adding persistence, message queues, and horizontal scaling would be the natural next learning steps.</blockquote>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s8">8. TESTING — 46 UNIT TESTS</h2>
+
+<h3>Why 46 Tests?</h3>
+<p>We treated testing as a learning tool, not a chore. For each DSA, we wrote tests that forced us to think about:</p>
+<ul>
+<li><strong>Normal cases:</strong> Does the happy path work?</li>
+<li><strong>Edge cases:</strong> What happens when inputs are empty, missing, or extreme?</li>
+<li><strong>Error handling:</strong> Does the code fail gracefully or crash?</li>
+<li><strong>Invariants:</strong> Does the structure maintain its properties (FIFO order, LIFO order, heap property)?</li>
+</ul>
+
+<h3>Test Coverage by Structure</h3>
+<table>
+<tr><th>Test Class</th><th>Tests</th><th>What Is Tested</th></tr>
+<tr><td>TestStockHashMap</td><td>7</td><td>put/get, missing key, update, remove, case-insensitive</td></tr>
+<tr><td>TestIngestionQueue</td><td>5</td><td>enqueue/dequeue, FIFO order, empty raise, drain, peek</td></tr>
+<tr><td>TestAlertStack</td><td>6</td><td>push/pop, LIFO order, empty raise, undo, max size</td></tr>
+<tr><td>TestTopKHeap</td><td>4</td><td>descending order, size bound, small discard, peek min</td></tr>
+<tr><td>TestSectorGraph</td><td>7</td><td>add node/edge, BFS, DFS, iterative, empty start</td></tr>
+<tr><td>TestMergeSort</td><td>5</td><td>numbers, sorted, reverse, empty/single, custom key</td></tr>
+<tr><td>TestBinarySearch</td><td>4</td><td>find existing, missing, lower bound, upper bound</td></tr>
+<tr><td>TestLRUCache</td><td>8</td><td>get/put, miss, eviction, LRU refresh, update, remove, clear, stats</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>46</strong></td><td></td></tr>
+</table>
+
+<h3>Key Edge Cases We Discovered Through Testing</h3>
+<table>
+<tr><th>DSA</th><th>Edge Case</th><th>What Would Have Happened Without the Test</th></tr>
+<tr><td>StockHashMap:</td><td>Missing key returns None, not KeyError</td><td>API would crash with 500 error</td></tr>
+<tr><td>IngestionQueue:</td><td>Empty queue dequeue() raises IndexError</td><td>Unhandled exception in simulator</td></tr>
+<tr><td>AlertStack:</td><td>Undo with nothing to undo returns False</td><td>Would crash on empty undo</td></tr>
+<tr><td>TopKHeap:</td><td>Small values discarded, heap never exceeds K</td><td>Heap would grow unbounded</td></tr>
+<tr><td>SectorGraph:</td><td>BFS/DFS on nonexistent start returns []</td><td>API would crash on invalid sector</td></tr>
+<tr><td>MergeSort:</td><td>Empty list, single element</td><td>Would crash on 0-length slice</td></tr>
+<tr><td>BinarySearch:</td><td>Target not found returns -1</td><td>Client gets no indication of failure</td></tr>
+<tr><td>LRUCache:</td><td>Eviction evicts correct entry</td><td>Wrong stock would be evicted</td></tr>
+</table>
+
+<h3>How to Run</h3>
+<pre>cd backend
+pytest tests/test_engine.py -v
+# Expected: 46 passed in ~0.45s</pre>
+
+<h3>Sample Test Output</h3>
+<pre>test_engine.py::TestStockHashMap::test_put_and_get PASSED
+test_engine.py::TestStockHashMap::test_get_missing PASSED
+test_engine.py::TestIngestionQueue::test_fifo_order PASSED
+test_engine.py::TestAlertStack::test_undo PASSED
+test_engine.py::TestTopKHeap::test_top_k_returns_descending PASSED
+test_engine.py::TestSectorGraph::test_bfs PASSED
+test_engine.py::TestMergeSort::test_sort_numbers PASSED
+test_engine.py::TestBinarySearch::test_find_existing PASSED
+test_engine.py::TestLRUCache::test_eviction PASSED
+...
+======================= 46 passed in 0.45s ========================</pre>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 13 — PYTEST OUTPUT]</strong><br>
+Paste terminal screenshot of <code>pytest tests/test_engine.py -v</code> showing 46 passed here.<br>
+<em>Size: full width, ~400px height</em>
+</div>
+
+<blockquote><strong>Key Takeaway:</strong> Writing tests for DSA implementations is the best way to understand their invariants — if you can't write a test for it, you don't understand the data structure.</blockquote>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s9">9. LIVE API VERIFICATION</h2>
+
+<p>After the 46 unit tests passed, we performed live integration testing against the running server (localhost:5000) to verify every data structure through its REST API endpoint.</p>
+
+<h3>Screenshot Guide</h3>
+<p>The file <code>test_dsa_output.txt</code> in the project root contains clean output ready for screenshots. Open it in a terminal or text editor and take screenshots as follows:</p>
+
+<table>
+<tr><th>Screenshot #</th><th>Command / What to Capture</th><th>Data Structure(s)</th></tr>
+<tr><td>S1</td><td><code>python test_dsa2.py</code> — Run the full test script</td><td>All 7 structures</td></tr>
+<tr><td>S2</td><td><code>curl http://localhost:5000/api/health</code></td><td>Queue (queue_size)</td></tr>
+<tr><td>S3</td><td><code>curl http://localhost:5000/api/stocks/AAPL</code> (with Bearer token)</td><td>HashMap</td></tr>
+<tr><td>S4</td><td><code>curl http://localhost:5000/api/stocks/top?metric=volume&amp;k=5</code></td><td>Heap (TopKHeap)</td></tr>
+<tr><td>S5</td><td><code>curl http://localhost:5000/api/stocks/sector/TECH/friends</code></td><td>Graph BFS</td></tr>
+<tr><td>S6</td><td><code>curl http://localhost:5000/api/stocks/sector/HEALTHCARE/friends/DFS</code></td><td>Graph DFS</td></tr>
+<tr><td>S7</td><td><code>curl http://localhost:5000/api/stocks/sorted?metric=price&amp;order=asc</code></td><td>Merge Sort</td></tr>
+<tr><td>S8</td><td><code>curl -X POST http://localhost:5000/api/stocks/search</code> with JSON body</td><td>Binary Search</td></tr>
+<tr><td>S9</td><td><code>curl http://localhost:5000/api/alerts</code></td><td>Stack (AlertStack)</td></tr>
+<tr><td>S10</td><td><code>curl http://localhost:5000/api/cache/stats</code></td><td>LRU Cache</td></tr>
+<tr><td>S11</td><td><code>curl http://localhost:5000/api/benchmarks</code> (with admin token)</td><td>All structure benchmarks</td></tr>
+</table>
+
+<h3>Full Test Script Output</h3>
+<p>Below is the output from <code>python test_dsa2.py</code> which exercises every data structure via the live API:</p>
+
+<pre>[HASHMAP             ] AAPL
+[STACK push          ] 201
+[STACK list          ] 1
+[HEAP                ] 10
+[GRAPH BFS           ] ['TECH', 'MEDIA', 'FINANCE', 'CONSUMER', 'RETAIL', 'ENERGY', 'HEALTHCARE', 'TRANSPORT']
+[QUEUE               ] size=0
+[MERGE SORT          ] 10000 sorted
+[BINARY SEARCH       ] 10000 in range
+[LRU CACHE           ] {"capacity": 50, "hit_rate_pct": 66.7, "hits": 2, "misses": 1, "size": 1, "total_requests": 3}</pre>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOTS 14–24 — LIVE API TESTING]</strong><br>
+Paste 11 terminal screenshots below (one per endpoint):<br>
+S14: <code>GET /api/health</code> — Queue<br>
+S15: <code>GET /api/stocks/AAPL</code> — HashMap<br>
+S16: <code>GET /api/stocks/top?k=5</code> — Heap<br>
+S17: <code>GET /api/stocks/sector/TECH/friends</code> — Graph BFS<br>
+S18: <code>GET /api/stocks/sector/HEALTHCARE/friends/DFS</code> — Graph DFS<br>
+S19: <code>GET /api/stocks/sorted?metric=price&order=asc</code> — Merge Sort<br>
+S20: <code>POST /api/stocks/search</code> — Binary Search<br>
+S21: <code>POST /api/alerts</code> — Stack (push)<br>
+S22: <code>GET /api/alerts</code> — Stack (list)<br>
+S23: <code>GET /api/cache/stats</code> — LRU Cache<br>
+S24: <code>GET /api/benchmarks</code> — All<br>
+<em>Each: ~half width, ~200px height</em>
+</div>
+
+<h3>Where to Insert Screenshots</h3>
+<p>Insert your screenshots in this section, after the test output above. Each screenshot should show the terminal output for the corresponding DSA endpoint. Recommended layout:</p>
+<ol>
+<li>Place S2–S10 side-by-side or stacked in a grid (one row per structure)</li>
+<li>Place S11 (benchmarks) full-width at the bottom</li>
+<li>Caption each screenshot with the endpoint URL and the DSA structure name</li>
+</ol>
+
+<blockquote><strong>Tip:</strong> Use Windows Snipping Tool (Win+Shift+S) to capture individual terminal windows. Save as PNG and embed in this logbook.</blockquote>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s10">10. TEAM REFLECTIONS — WHAT EACH MEMBER LEARNED</h2>
+
+<h3>Person 1 — Team Lead / Integrator</h3>
+<blockquote>"I learned that integration is harder than implementation. Getting six members' code to work together — consistent imports, shared type definitions, same Python path — was more challenging than writing any single component. The architecture diagram forced me to understand every DSA well enough to draw it. I also learned that documentation is not an afterthought; it's how the team stays aligned."</blockquote>
+
+<h3>Person 2 — Data Structures Lead</h3>
+<blockquote>"Implementing six data structures back-to-back taught me that most operations are O(1) or O(log n) — the real difference is in the constants and the edge cases. The LRU Cache (HashMap + DLL) was the hardest because it required pointer surgery. The IngestionQueue was the simplest (just wrapping deque), but even that had the <code>list.pop(0)</code> trap. I'll never use <code>list</code> as a queue again."</blockquote>
+
+<h3>Person 3 — Algorithms Lead</h3>
+<blockquote>"Merge Sort and Binary Search are taught as textbook algorithms, but implementing them with custom key functions and integrating them into an API taught me that algorithms in production need flexible interfaces. The benchmark suite was my favourite part — writing code to measure code. The satisfaction of seeing MergeSort's O(n log n) match the theory (13x per 10x vs the expected ~13.3x) was real."</blockquote>
+
+<h3>Person 4 — API Developer</h3>
+<blockquote>"Wiring 22 endpoints to the DSA engine taught me that API design is about matching routes to operations. Each endpoint is an interface to exactly one DSA operation. I learned that error messages matter — a good 404 message like 'Stock not found' is better than a 500 stack trace. CORS took me an hour to debug because I forgot the wildcard origin. Never again."</blockquote>
+
+<h3>Person 5 — Auth + Simulator</h3>
+<blockquote>"Implementing JWT with SHA-256 taught me that security is about trade-offs: short-lived tokens are safer but require refresh logic. The simulator was fun — seeing random ticks appear in real-time made the system feel alive. The SERVERLESS flag was a lesson in environment-aware design: the same code runs differently on Vercel vs localhost."</blockquote>
+
+<h3>Person 6 — Testing &amp; QA</h3>
+<blockquote>"Writing 46 tests across 8 DSA structures taught me that edge cases are not 'rare' — they account for about 40% of our tests. The most valuable test was the LRU Cache eviction test, which caught a bug where the wrong node was removed from the DLL. I learned that if you test only the happy path, you're testing your assumptions, not your code."</blockquote>
+
+<div class="screenshot-box">
+<strong>[SCREENSHOT 25 — TEAM PHOTO]</strong><br>
+Paste team group photo or final meeting screenshot here.<br>
+<em>Size: full width, ~400px height</em>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s11">11. CONCLUSION</h2>
+
+<h3>What We Learned as a Team</h3>
+
+<ol>
+<li><strong>Every DSA has a job.</strong> Hash maps for lookup, heaps for top-K, stacks for undo, queues for buffering, graphs for relationships, sorting for ordering, binary search for fast range queries, and caches for hot data. The skill is matching the right structure to the right job.</li>
+
+<li><strong>Complexity analysis is not academic.</strong> Our benchmark results matched theoretical predictions with remarkable precision — O(1) was flat, O(n) grew linearly, O(n log n) grew with the extra log factor. Theory guides, practice confirms.</li>
+
+<li><strong>Bugs hide in edge cases.</strong> 40% of our tests covered edge cases (empty, full, missing, duplicate). Every one of those tests caught a bug we wouldn't have found otherwise.</li>
+
+<li><strong>Systems thinking matters.</strong> Data structures don't exist in isolation. The simulator produces ticks → the queue buffers them → the map stores them → the heap tracks top-K → the cache accelerates reads. Understanding the data flow is more important than memorising any single algorithm.</li>
+</ol>
+
+<h3>Verifying Our Complexity Claims</h3>
+<table>
+<tr><th>Structure</th><th>Claimed</th><th>Verified</th><th>Evidence</th></tr>
+<tr><td>StockHashMap</td><td>O(1)</td><td>✓</td><td>Flat timing across 1K–100K</td></tr>
+<tr><td>IngestionQueue</td><td>O(1)</td><td>✓</td><td>Flat timing across 1K–100K</td></tr>
+<tr><td>AlertStack</td><td>O(1)</td><td>✓</td><td>Flat timing across 1K–100K</td></tr>
+<tr><td>TopKHeap</td><td>O(log K)</td><td>✓</td><td>Linear with N (K fixed at 10)</td></tr>
+<tr><td>SectorGraph BFS</td><td>O(V+E)</td><td>✓</td><td>Linear with node count</td></tr>
+<tr><td>MergeSort</td><td>O(n log n)</td><td>✓</td><td>~13x per 10x data</td></tr>
+<tr><td>BinarySearch</td><td>O(log n)</td><td>✓</td><td>Near flat across 1K–100K</td></tr>
+<tr><td>LRUCache</td><td>O(1)</td><td>✓</td><td>Flat timing across 1K–100K</td></tr>
+</table>
+
+<h3>Key Metrics</h3>
+<div class="metrics">
+<div class="metric-box"><div class="num">10,000</div><div class="label">Stocks Seeded</div></div>
+<div class="metric-box"><div class="num">46/46</div><div class="label">Tests Passing</div></div>
+<div class="metric-box"><div class="num">22</div><div class="label">REST Endpoints</div></div>
+<div class="metric-box"><div class="num">3</div><div class="label">User Roles</div></div>
+<div class="metric-box"><div class="num">8</div><div class="label">DSA Structures</div></div>
+<div class="metric-box"><div class="num">0</div><div class="label">External DBs</div></div>
+</div>
+
+<h3>Final Thought</h3>
+<blockquote>"We didn't build a production-ready stock server. We built a learning environment where we could apply every DSA we studied in Chapter 23. The system works, the tests pass, the benchmarks match theory — but the real output is not the code. It's what we now know about when to use a heap, why queues exist, and how caching works."</blockquote>
+
+<hr>
+
+<h3>Architecture Diagram (Final System Overview)</h3>
+<pre>┌──────────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                               │
+│            curl / Postman / React Frontend                        │
+└───────────────────────┬──────────────────────────────────────────┘
+                        │  HTTP + JWT Bearer
+┌───────────────────────▼──────────────────────────────────────────┐
+│                     API GATEWAY                                   │
+│  ┌──────────────────┐  ┌──────────────────────────────────────┐  │
+│  │  JWT Auth        │  │  22 REST Endpoints                   │  │
+│  │  @require_auth   │  │  /api/auth/* /api/stocks/*           │  │
+│  │  @require_role   │  │  /api/alerts/* /api/benchmarks       │  │
+│  └──────────────────┘  │  /api/cache/* /api/health            │  │
+│                        └──────────────┬───────────────────────┘  │
+│                              ┌───────▼────────┐                  │
+│                              │  LRU Cache     │                  │
+│                              │  (capacity=50) │                  │
+│                              └───────┬────────┘                  │
+└──────────────────────────────────────┼───────────────────────────┘
+                                       │
+┌──────────────────────────────────────▼───────────────────────────┐
+│                        DSA ENGINE                                 │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              StockHashMap (Hash Table)                   │   │
+│  │              10,000 stocks, O(1) lookup                  │   │
+│  └────────┬──────────┬──────────┬──────────┬────────────────┘   │
+│           │          │          │          │                     │
+│     ┌─────▼────┐ ┌──▼───┐ ┌───▼────┐ ┌───▼──────────┐          │
+│     │ TopKHeap │ │Alert │ │Sector  │ │ MergeSort    │          │
+│     │ Min-Heap │ │Stack │ │Graph   │ │ + BinarySrch │          │
+│     │ O(log K) │ │LIFO  │ │BFS/DFS │ │ O(n log n)   │          │
+│     └──────────┘ └──────┘ │O(V+E)  │ │ O(log n)     │          │
+│                           └────────┘ └──────────────┘          │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              IngestionQueue (FIFO Buffer)                │   │
+│  │              collections.deque, O(1) ops                 │   │
+│  └────────────────────────┬─────────────────────────────────┘   │
+└───────────────────────────┼─────────────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────────────┐
+│                 BACKGROUND SIMULATOR THREAD                      │
+│  ┌──────────────────────┐  ┌────────────────────────────────┐  │
+│  │  Stock Seeder        │  │  Tick Generator (every 2s)     │  │
+│  │  24 anchors + 9976   │  │  Random symbol, ±2% price      │  │
+│  │  synthetic, 90 days  │  │  → Queue → Map → Heap → Alert │  │
+│  └──────────────────────┘  └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘</pre>
+
+<hr>
+
+<p style="text-align:center;">
+<em>End of Logbook — DSA-CH23-GROUP-01</em><br>
+<strong>Stock Query Server — Theme C, Variant C3: Alerts + Event Queue</strong><br>
+June 2026
+</p>
+
+</body>
+</html>

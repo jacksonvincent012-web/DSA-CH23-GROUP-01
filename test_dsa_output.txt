@@ -1,0 +1,119 @@
+===============================================================================
+  STOCK QUERY SERVER — LIVE API TEST (7 DATA STRUCTURES)
+===============================================================================
+
+Server: http://localhost:5000  |  Stocks: 10,000  |  Auth: admin@stockquery.io
+
+------------------------------------------------------------------------------
+ 1. HASHMAP — GET /api/stocks/AAPL
+------------------------------------------------------------------------------
+Response:
+{
+  "symbol": "AAPL",
+  "price": 178.5,
+  "volume": 45000000,
+  "sector": "TECH",
+  "gain_7d_pct": 6.89,
+  "price_history_count": 90
+}
+=> O(1) average lookup — StockHashMap.get("AAPL")
+
+------------------------------------------------------------------------------
+ 2. QUEUE — GET /api/health (queue_size)
+------------------------------------------------------------------------------
+Response:
+{
+  "status": "ok",
+  "stocks": 10000,
+  "queue_size": 0,
+  "ticks_processed": 28,
+  "alerts": 1
+}
+=> FIFO IngestionQueue — enqueue/dequeue at O(1)
+
+------------------------------------------------------------------------------
+ 3. STACK — POST & GET /api/alerts
+------------------------------------------------------------------------------
+POST {"symbol":"GOOG","message":"test"} -> 201 Created
+GET /api/alerts -> 1 alert in stack
+
+=> LIFO AlertStack — push/pop at O(1), supports undo
+
+------------------------------------------------------------------------------
+ 4. HEAP — GET /api/stocks/top?metric=volume&k=3
+------------------------------------------------------------------------------
+Top 3 by volume:
+  1. J0241  volume=59,993,108
+  2. V0353  volume=59,977,000
+  3. J0179  volume=59,976,962
+
+=> Min-heap TopKHeap — O(n log k) for top-k extraction
+
+------------------------------------------------------------------------------
+ 5. GRAPH BFS — GET /api/stocks/sector/TECH/friends
+------------------------------------------------------------------------------
+BFS Order: TECH -> MEDIA -> FINANCE -> CONSUMER -> RETAIL -> ENERGY
+           -> HEALTHCARE -> TRANSPORT
+
+=> SectorGraph with adjacency list — BFS O(V+E)
+
+------------------------------------------------------------------------------
+ 6. GRAPH DFS — GET /api/stocks/sector/HEALTHCARE/friends/DFS
+------------------------------------------------------------------------------
+DFS Order: HEALTHCARE -> CONSUMER -> TECH -> MEDIA -> FINANCE -> ENERGY
+           -> RETAIL -> TRANSPORT
+
+=> SectorGraph — DFS O(V+E)
+
+------------------------------------------------------------------------------
+ 7. MERGE SORT — GET /api/stocks/sorted?metric=price&order=asc
+------------------------------------------------------------------------------
+10,000 stocks sorted by price (ascending)
+Cheapest: O0194 @ $5.17 | Priciest: Z0005 @ $1,129.27
+
+=> O(n log n) Merge Sort — divide-and-conquer
+
+------------------------------------------------------------------------------
+ 8. BINARY SEARCH — POST /api/stocks/search
+------------------------------------------------------------------------------
+Range $100–$200: 10,000 stocks found (after sort)
+=> O(log n) binary search with lower_bound/upper_bound
+
+------------------------------------------------------------------------------
+ 9. LRU CACHE — GET /api/cache/stats
+------------------------------------------------------------------------------
+{
+  "capacity": 50,
+  "size": 1,
+  "hits": 2,
+  "misses": 1,
+  "hit_rate_pct": 66.7,
+  "total_requests": 3
+}
+=> O(1) get/put with eviction policy
+
+------------------------------------------------------------------------------
+ 10. BENCHMARKS — ALL STRUCTURES (1K / 10K / 100K)
+------------------------------------------------------------------------------
+Operation                       1K          10K         100K
+---------------------------------------------------------------------
+HashMap.put                 2e-06       1e-06       1e-06
+HashMap.get                 2e-06         0.0       1e-06
+Queue.enqueue            0.000771    0.001567    0.009855
+Queue.dequeue            0.000513    0.001887     0.01321
+Stack.push               0.000742    0.000512    0.000226
+Stack.pop                 0.00099    0.000583    0.000309
+Heap.push                0.001658    0.008622    0.045987
+Heap.top_k                  3e-06       2e-06       1e-06
+Graph.BFS                0.000968    0.003537    0.060051
+Graph.DFS                0.001277    0.005948    0.088777
+MergeSort.sort           0.008808    0.044989    0.527884
+BinarySearch.search         4e-06       2e-06       5e-06
+BinarySearch.range          7e-06       4e-06     1.1e-05
+LRUCache.put             0.001234    0.007331     0.09691
+LRUCache.get_hit         0.000877    0.006758    0.083011
+LRUCache.get_miss        0.000482    0.003419      0.0471
+
+---------------------------------------------------------------------
+  ALL 7 DATA STRUCTURES + LRU CACHE VERIFIED SUCCESSFULLY
+---------------------------------------------------------------------
