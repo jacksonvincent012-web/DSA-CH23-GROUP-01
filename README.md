@@ -104,6 +104,19 @@ python index.py           # seeds 10K stocks, starts on :5000
 
 ---
 
+## Commit History — Team Contributions
+
+| Person | Role | Commits Summary |
+|--------|------|----------------|
+| **Person 1** — `Jackson Vincent` | Team Lead | Initial scaffold, project docs, README, architecture diagram, config files |
+| **Person 2** — `abiwairimu603-cmyk` | DSA Lead | 6 DSA structures: HashMap, Queue, Stack, Heap, Graph, LRU Cache |
+| **Person 3** — `bi-smark` | Algorithms Lead | MergeSort, BinarySearch, empirical benchmark suite |
+| **Person 4** — `Benjamin-Carson` | API Developer | Flask server with 22 REST endpoints wiring all DSA structures |
+| **Person 5** — `selinamomoi103` | Auth & Simulator | JWT auth with RBAC (3 roles), market tick simulator, Vercel entry |
+| **Person 6** — `sirlilchristian-hash` | Testing & Cleanup | 46 pytest tests across all DSA structures, repo cleanup, final README |
+
+---
+
 ## Deliverables
 
 - **`LOGBOOK.docx`** — Full learning journey with screenshots
