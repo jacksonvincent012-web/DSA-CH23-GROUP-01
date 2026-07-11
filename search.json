@@ -1,0 +1,644 @@
+{
+  "count": 91,
+  "high": 160.0,
+  "low": 150.0,
+  "stocks": [
+    {
+      "price": 150.03,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "Z0172",
+      "volume": 46723562
+    },
+    {
+      "price": 150.37,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "Z0160",
+      "volume": 7527484
+    },
+    {
+      "price": 150.47,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "M0215",
+      "volume": 47744573
+    },
+    {
+      "price": 150.49,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "B0046",
+      "volume": 18314106
+    },
+    {
+      "price": 150.53,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "F0338",
+      "volume": 32299053
+    },
+    {
+      "price": 150.58,
+      "price_history_count": 90,
+      "sector": "REAL_ESTATE",
+      "symbol": "C0199",
+      "volume": 47510698
+    },
+    {
+      "price": 150.81,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "D0207",
+      "volume": 51406895
+    },
+    {
+      "price": 150.86,
+      "price_history_count": 91,
+      "sector": "ENERGY",
+      "symbol": "Y0362",
+      "volume": 7564225
+    },
+    {
+      "price": 150.9,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "W0155",
+      "volume": 5839002
+    },
+    {
+      "price": 151.19,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "F0019",
+      "volume": 41158776
+    },
+    {
+      "price": 151.37,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "Z0013",
+      "volume": 31471282
+    },
+    {
+      "price": 151.41,
+      "price_history_count": 91,
+      "sector": "RETAIL",
+      "symbol": "O0056",
+      "volume": 30057376
+    },
+    {
+      "price": 151.47,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "V0285",
+      "volume": 47004507
+    },
+    {
+      "price": 151.91,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "G0361",
+      "volume": 9936445
+    },
+    {
+      "price": 152.01,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "U0092",
+      "volume": 43886506
+    },
+    {
+      "price": 152.05,
+      "price_history_count": 91,
+      "sector": "UTILITIES",
+      "symbol": "W0088",
+      "volume": 58605932
+    },
+    {
+      "price": 152.11,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "U0194",
+      "volume": 15443200
+    },
+    {
+      "price": 152.42,
+      "price_history_count": 91,
+      "sector": "CONSUMER",
+      "symbol": "J0229",
+      "volume": 23849162
+    },
+    {
+      "price": 152.44,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "Q0356",
+      "volume": 16873726
+    },
+    {
+      "price": 152.48,
+      "price_history_count": 91,
+      "sector": "MEDIA",
+      "symbol": "M0175",
+      "volume": 18239162
+    },
+    {
+      "price": 152.52,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "T0111",
+      "volume": 2790838
+    },
+    {
+      "price": 152.52,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "T0222",
+      "volume": 14022957
+    },
+    {
+      "price": 152.58,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "C0081",
+      "volume": 41140687
+    },
+    {
+      "price": 152.68,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "R0332",
+      "volume": 58063813
+    },
+    {
+      "price": 152.73,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "I0050",
+      "volume": 20238253
+    },
+    {
+      "price": 152.8,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "G0086",
+      "volume": 5434268
+    },
+    {
+      "price": 152.85,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "D0332",
+      "volume": 19647887
+    },
+    {
+      "price": 152.99,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "O0247",
+      "volume": 43299324
+    },
+    {
+      "price": 153.13,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "F0092",
+      "volume": 20770518
+    },
+    {
+      "price": 153.14,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "P0062",
+      "volume": 11449484
+    },
+    {
+      "price": 153.28,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "P0343",
+      "volume": 23368165
+    },
+    {
+      "price": 153.29,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "Q0354",
+      "volume": 46737972
+    },
+    {
+      "price": 153.41,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "C0305",
+      "volume": 13745928
+    },
+    {
+      "price": 153.44,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "H0317",
+      "volume": 33724724
+    },
+    {
+      "price": 153.53,
+      "price_history_count": 90,
+      "sector": "REAL_ESTATE",
+      "symbol": "A0259",
+      "volume": 26147958
+    },
+    {
+      "price": 153.93,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "Z0332",
+      "volume": 58983585
+    },
+    {
+      "price": 154.05,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "B0083",
+      "volume": 15054608
+    },
+    {
+      "price": 154.07,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "T0152",
+      "volume": 24289287
+    },
+    {
+      "price": 154.18,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "I0257",
+      "volume": 22152657
+    },
+    {
+      "price": 154.18,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "S0313",
+      "volume": 19111728
+    },
+    {
+      "price": 154.22,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "C0286",
+      "volume": 19354981
+    },
+    {
+      "price": 154.35,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "Q0208",
+      "volume": 58636986
+    },
+    {
+      "price": 154.59,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "I0270",
+      "volume": 37243004
+    },
+    {
+      "price": 154.77,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "U0353",
+      "volume": 2511395
+    },
+    {
+      "price": 155.1,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "X0277",
+      "volume": 15990644
+    },
+    {
+      "price": 155.2,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "CVX",
+      "volume": 4000000
+    },
+    {
+      "price": 155.35,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "S0010",
+      "volume": 46982010
+    },
+    {
+      "price": 155.45,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "G0060",
+      "volume": 36597160
+    },
+    {
+      "price": 155.6,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "T0181",
+      "volume": 58684847
+    },
+    {
+      "price": 155.74,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "D0379",
+      "volume": 27772983
+    },
+    {
+      "price": 155.77,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "B0273",
+      "volume": 10241600
+    },
+    {
+      "price": 156.04,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "T0245",
+      "volume": 28997121
+    },
+    {
+      "price": 156.55,
+      "price_history_count": 91,
+      "sector": "UTILITIES",
+      "symbol": "L0263",
+      "volume": 37514852
+    },
+    {
+      "price": 156.8,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "JNJ",
+      "volume": 5000000
+    },
+    {
+      "price": 157.08,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "F0190",
+      "volume": 9721304
+    },
+    {
+      "price": 157.08,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "M0372",
+      "volume": 57821462
+    },
+    {
+      "price": 157.23,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "K0324",
+      "volume": 44023797
+    },
+    {
+      "price": 157.45,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "V0011",
+      "volume": 33229212
+    },
+    {
+      "price": 157.61,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "N0206",
+      "volume": 21650609
+    },
+    {
+      "price": 157.93,
+      "price_history_count": 91,
+      "sector": "MEDIA",
+      "symbol": "L0260",
+      "volume": 31411743
+    },
+    {
+      "price": 157.94,
+      "price_history_count": 91,
+      "sector": "CONSUMER",
+      "symbol": "H0259",
+      "volume": 42429805
+    },
+    {
+      "price": 157.96,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "G0006",
+      "volume": 48283124
+    },
+    {
+      "price": 157.98,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "P0350",
+      "volume": 9486212
+    },
+    {
+      "price": 158.0,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "N0362",
+      "volume": 3622988
+    },
+    {
+      "price": 158.09,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "R0278",
+      "volume": 20210425
+    },
+    {
+      "price": 158.25,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "G0066",
+      "volume": 32081944
+    },
+    {
+      "price": 158.29,
+      "price_history_count": 91,
+      "sector": "RETAIL",
+      "symbol": "W0016",
+      "volume": 47645716
+    },
+    {
+      "price": 158.32,
+      "price_history_count": 90,
+      "sector": "ENERGY",
+      "symbol": "I0222",
+      "volume": 34446182
+    },
+    {
+      "price": 158.36,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "O0261",
+      "volume": 24122663
+    },
+    {
+      "price": 158.43,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "V0263",
+      "volume": 52314480
+    },
+    {
+      "price": 158.49,
+      "price_history_count": 90,
+      "sector": "FINANCE",
+      "symbol": "X0376",
+      "volume": 20023774
+    },
+    {
+      "price": 158.7,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "W0196",
+      "volume": 43871491
+    },
+    {
+      "price": 158.71,
+      "price_history_count": 91,
+      "sector": "TECH",
+      "symbol": "I0250",
+      "volume": 34490363
+    },
+    {
+      "price": 158.81,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "N0125",
+      "volume": 8202482
+    },
+    {
+      "price": 158.92,
+      "price_history_count": 90,
+      "sector": "REAL_ESTATE",
+      "symbol": "W0199",
+      "volume": 25708049
+    },
+    {
+      "price": 158.99,
+      "price_history_count": 90,
+      "sector": "TRANSPORT",
+      "symbol": "A0377",
+      "volume": 6279267
+    },
+    {
+      "price": 159.04,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "P0231",
+      "volume": 16637308
+    },
+    {
+      "price": 159.09,
+      "price_history_count": 90,
+      "sector": "REAL_ESTATE",
+      "symbol": "I0379",
+      "volume": 51461881
+    },
+    {
+      "price": 159.11,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "B0138",
+      "volume": 8205719
+    },
+    {
+      "price": 159.13,
+      "price_history_count": 90,
+      "sector": "CONSUMER",
+      "symbol": "N0039",
+      "volume": 16102050
+    },
+    {
+      "price": 159.21,
+      "price_history_count": 91,
+      "sector": "FINANCE",
+      "symbol": "J0036",
+      "volume": 19701052
+    },
+    {
+      "price": 159.4,
+      "price_history_count": 90,
+      "sector": "REAL_ESTATE",
+      "symbol": "I0009",
+      "volume": 814516
+    },
+    {
+      "price": 159.44,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "Q0233",
+      "volume": 15135146
+    },
+    {
+      "price": 159.49,
+      "price_history_count": 90,
+      "sector": "TECH",
+      "symbol": "O0360",
+      "volume": 34712369
+    },
+    {
+      "price": 159.55,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "A0013",
+      "volume": 14976098
+    },
+    {
+      "price": 159.56,
+      "price_history_count": 90,
+      "sector": "MEDIA",
+      "symbol": "N0340",
+      "volume": 10827428
+    },
+    {
+      "price": 159.77,
+      "price_history_count": 90,
+      "sector": "HEALTHCARE",
+      "symbol": "K0253",
+      "volume": 16792515
+    },
+    {
+      "price": 159.82,
+      "price_history_count": 91,
+      "sector": "ENERGY",
+      "symbol": "Z0107",
+      "volume": 8454505
+    },
+    {
+      "price": 159.98,
+      "price_history_count": 91,
+      "sector": "RETAIL",
+      "symbol": "M0266",
+      "volume": 32264842
+    },
+    {
+      "price": 159.99,
+      "price_history_count": 90,
+      "sector": "UTILITIES",
+      "symbol": "W0228",
+      "volume": 8828178
+    },
+    {
+      "price": 160.0,
+      "price_history_count": 90,
+      "sector": "RETAIL",
+      "symbol": "P0131",
+      "volume": 36233967
+    }
+  ]
+}
