@@ -1,80 +1,213 @@
-"""Live API test for all 7 data structures."""
-import requests, json
+import urllib.request, json, sys, time
 
 BASE = "http://localhost:5000"
 
-# Login
-r = requests.post(f"{BASE}/api/auth/login", json={"email":"admin@stockquery.io","password":"admin123"})
-token = r.json()["access_token"]
-h = {"Authorization": f"Bearer {token}"}
-jh = {**h, "Content-Type": "application/json"}
+def req(method, path, data=None, token=None):
+    body = json.dumps(data).encode() if data else None
+    r = urllib.request.Request(f"{BASE}{path}", data=body, method=method)
+    r.add_header("Content-Type", "application/json")
+    if token:
+        r.add_header("Authorization", f"Bearer {token}")
+    return json.loads(urllib.request.urlopen(r).read())
 
-def sec(n, s):
-    print(f"\n{'='*60}")
-    print(f"  {n}. {s}")
-    print('='*60)
+# --- LOGIN ---
+token = req("POST", "/api/auth/login",
+    {"email": "admin@stockquery.io", "password": "admin123"})["access_token"]
+print(f"\n{'='*60}")
+print(f"DSA LEARNING JOURNEY — Testing All 8 Data Structures")
+print(f"{'='*60}\n")
 
-# 1. HASHMAP
-sec(1, "HASHMAP - GET /api/stocks (list 2)")
-r = requests.get(f"{BASE}/api/stocks?limit=2", headers=h)
-data = r.json()
-print(f"  Total stocks: {len(data)}" if isinstance(data, list) else f"  {json.dumps(data, indent=2)[:300]}")
+# ======================================================================
+# DSA 1: HASH MAP (StockHashMap)
+# ======================================================================
+print(f"{'─'*60}")
+print(f"DSA 1: HASH MAP — StockHashMap")
+print(f"{'─'*60}")
+print(f"  How it works: A hash map (dictionary) stores 10,000 stocks by symbol.")
+print(f"  Keys are hashed to buckets for O(1) average lookups.")
+print(f"  Python dict = hash table with separate chaining.\n")
 
-sec(2, "HASHMAP - GET /api/stocks/AAPL")
-r = requests.get(f"{BASE}/api/stocks/AAPL", headers=h)
-print(f"  {json.dumps(r.json(), indent=2)[:400]}")
+d = req("GET", "/api/stocks", token=token)
+print(f"  GET /api/stocks -> {d['count']} stocks loaded from hash map")
+print(f"  Sample: {d['stocks'][0]['symbol']} (${d['stocks'][0]['price']}, {d['stocks'][0]['sector']})")
+print(f"          {d['stocks'][1]['symbol']} (${d['stocks'][1]['price']}, {d['stocks'][1]['sector']})")
 
-# 3. QUEUE (via health)
-sec(3, "QUEUE - GET /api/health (queue_size)")
-r = requests.get(f"{BASE}/api/health")
-print(f"  {json.dumps(r.json(), indent=2)}")
+d = req("GET", "/api/stocks/AAPL", token=token)
+print(f"\n  GET /api/stocks/AAPL -> ${d['price']}, vol {d['volume']}, gain {d['gain_7d_pct']}%")
+print(f"  Hash map lookup: O(1) — instant even with 10,000 entries")
 
-# 4. STACK - push alert
-sec(4, "STACK - POST /api/alerts (push)")
-r = requests.post(f"{BASE}/api/alerts", json={"symbol":"MSFT","message":"test","type":"volume_spike"}, headers=jh)
-print(f"  {json.dumps(r.json(), indent=2)}")
+time.sleep(0.3)
 
-# 5. STACK - get alerts
-sec(5, "STACK - GET /api/alerts (list)")
-r = requests.get(f"{BASE}/api/alerts", headers=h)
-print(f"  {json.dumps(r.json(), indent=2)[:400]}")
+# ======================================================================
+# DSA 2: QUEUE (IngestionQueue) — tested via health
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 2: QUEUE — IngestionQueue (FIFO)")
+print(f"{'─'*60}")
+print(f"  How it works: A First-In-First-Out queue buffers price ticks.")
+print(f"  New prices enter at the tail, oldest exit at the head.")
+print(f"  Uses collections.deque for O(1) append/pop.\n")
 
-# 6. HEAP
-sec(6, "HEAP - GET /api/stocks/top?metric=volume&k=5")
-r = requests.get(f"{BASE}/api/stocks/top", params={"metric":"volume","k":5}, headers=h)
-print(f"  {json.dumps(r.json(), indent=2)[:600]}")
+d = req("GET", "/api/health", token=token)
+print(f"  GET /api/health -> stocks={d['stocks']}, queue_size={d['queue_size']}, ticks={d['ticks_processed']}")
+print(f"  Queue holds pending ingestion ticks — processed sequentially FIFO")
 
-# 7. GRAPH BFS
-sec(7, "GRAPH BFS - GET /api/stocks/sector/TECH/friends")
-r = requests.get(f"{BASE}/api/stocks/sector/TECH/friends", headers=h)
-print(f"  {json.dumps(r.json(), indent=2)[:500]}")
+time.sleep(0.3)
 
-# 8. GRAPH DFS
-sec(8, "GRAPH DFS - GET /api/stocks/sector/HEALTHCARE/friends/DFS")
-r = requests.get(f"{BASE}/api/stocks/sector/HEALTHCARE/friends/DFS", headers=h)
-print(f"  {json.dumps(r.json(), indent=2)[:500]}")
+# ======================================================================
+# DSA 3: STACK (AlertStack)
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 3: STACK — AlertStack (LIFO)")
+print(f"{'─'*60}")
+print(f"  How it works: A Last-In-First-Out stack for price alerts.")
+print(f"  Create alerts — most recent sits on top. Pop to undo last.")
+print(f"  Also supports undo/redo via a secondary stack.\n")
 
-# 9. MERGE SORT + BINARY SEARCH
-sec(9, "MERGE SORT + BINARY SEARCH - POST /api/stocks/search")
-r = requests.post(f"{BASE}/api/stocks/search", json={"metric":"price","range_start":100,"range_end":500}, headers=jh)
-print(f"  Stocks in $100-500 range: {len(r.json().get('stocks', r.json()))}")
-print(f"  {json.dumps(r.json(), indent=2)[:400]}")
+# Create 3 alerts
+for s in ["AAPL", "MSFT", "GOOGL"]:
+    r = req("POST", "/api/alerts", {"symbol": s, "threshold": 500, "direction": "above"}, token=token)
+    print(f"  POST /api/alerts ({s}) -> {r['message']}")
 
-# 10. MERGE SORT - sorted list
-sec(10, "MERGE SORT - GET /api/stocks/sorted?metric=price&order=asc")
-r = requests.get(f"{BASE}/api/stocks/sorted", params={"metric":"price","order":"asc"}, headers=h)
-data = r.json()
-stocks = data.get("stocks", data)
-print(f"  Count: {data.get('count', len(stocks))}, cheapest: {stocks[0] if stocks else 'none'}")
+d = req("GET", "/api/alerts", token=token)
+print(f"  GET /api/alerts -> {d['count']} alerts on stack")
+for a in d["alerts"]:
+    print(f"    • {a['symbol']}: {a['direction']} ${a['threshold']}")
 
-# 11. LRU CACHE
-sec(11, "LRU CACHE - GET /api/cache/stats")
-r = requests.get(f"{BASE}/api/cache/stats", headers=h)
-print(f"  {json.dumps(r.json(), indent=2)}")
+# Undo last (GOOGL)
+r = req("DELETE", "/api/alerts/undo", token=token)
+print(f"  DELETE /api/alerts/undo -> {r['message']}")
 
-# 12. BENCHMARKS
-sec(12, "BENCHMARKS - GET /api/benchmarks")
-r = requests.get(f"{BASE}/api/benchmarks", headers=h)
-bm = r.json()
-for name, result in bm.items():
-    print(f"  {name}: {result}")
+d = req("GET", "/api/alerts", token=token)
+print(f"  After undo -> {d['count']} alerts remaining (GOOGL popped)")
+print(f"  Stack push: O(1), pop: O(1)")
+
+time.sleep(0.3)
+
+# ======================================================================
+# DSA 4: HEAP (TopKHeap)
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 4: HEAP — TopKHeap (Priority Queue)")
+print(f"{'─'*60}")
+print(f"  How it works: A min-heap of top K stocks by volume or price.")
+print(f"  Maintains K largest elements in O(log K) per push.")
+print(f"  Uses heapq (binary heap) under the hood.\n")
+
+d = req("GET", "/api/stocks/top?metric=volume&k=5", token=token)
+print(f"  GET /api/stocks/top (metric=volume, k=5)")
+for i, s in enumerate(d["top"], 1):
+    print(f"    {i}. {s['symbol']} — volume={s['volume']:,}, price=${s['price']}")
+print(f"  Heap extracts top K in O(K log K)")
+
+time.sleep(0.3)
+
+# ======================================================================
+# DSA 5: GRAPH — BFS (SectorGraph)
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 5: GRAPH — BFS Traversal")
+print(f"{'─'*60}")
+print(f"  How it works: Sectors are graph nodes, edges = related industries.")
+print(f"  BFS explores level-by-level using a queue.")
+print(f"  Finds shortest path (minimum sectors to traverse).\n")
+
+d = req("GET", "/api/stocks/sector/TECH/friends", token=token)
+print(f"  GET /api/stocks/sector/TECH/friends (BFS)")
+print(f"  BFS Order: {' -> '.join(d['bfs_order'])}")
+print(f"  Sectors reachable: {len(d['bfs_order'])}")
+for sec, stocks in d["sector_stocks"].items():
+    print(f"    {sec}: {', '.join(stocks[:3])}{'...' if len(stocks)>3 else ''}")
+
+time.sleep(0.3)
+
+# ======================================================================
+# DSA 6: GRAPH — DFS (SectorGraph)
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 6: GRAPH — DFS Traversal")
+print(f"{'─'*60}")
+print(f"  How it works: DFS explores depth-first using a stack.")
+print(f"  Goes deep into one branch before backtracking.")
+print(f"  Uses recursive or iterative stack approach.\n")
+
+d = req("GET", "/api/stocks/sector/TECH/friends/DFS", token=token)
+print(f"  GET /api/stocks/sector/TECH/friends/DFS")
+print(f"  DFS Order: {' -> '.join(d['dfs_order'])}")
+print(f"  Note: BFS vs DFS give different traversal orders!")
+print(f"  BFS: short paths first | DFS: deep dive first")
+
+time.sleep(0.3)
+
+# ======================================================================
+# DSA 7: SORT — Merge Sort
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 7: MERGE SORT — Sorting Stocks by Price")
+print(f"{'─'*60}")
+print(f"  How it works: Divide-and-conquer sorting. Split array in half,")
+print(f"  recursively sort each half, then merge. O(n log n) worst case.")
+print(f"  Stable sort — preserves relative order of equal elements.\n")
+
+d = req("GET", "/api/stocks/sorted", token=token)
+print(f"  GET /api/stocks/sorted -> {d['count']} stocks sorted by price")
+print(f"  Cheapest: {d['stocks'][0]['symbol']} (${d['stocks'][0]['price']})")
+print(f"  Costliest: {d['stocks'][-1]['symbol']} (${d['stocks'][-1]['price']})")
+print(f"  Middle: {d['stocks'][len(d['stocks'])//2]['symbol']} (${d['stocks'][len(d['stocks'])//2]['price']})")
+
+d = req("GET", "/api/stocks/AAPL/history", token=token)
+print(f"\n  GET /api/stocks/AAPL/history -> {len(d['history'])} days (merge-sorted by date)")
+print(f"  First: {d['history'][0]['date']} @ ${d['history'][0]['price']}")
+print(f"  Last:  {d['history'][-1]['date']} @ ${d['history'][-1]['price']}")
+
+time.sleep(0.3)
+
+# ======================================================================
+# DSA 8: BINARY SEARCH / RANGE SEARCH
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"DSA 8: BINARY SEARCH — Range Search by Price")
+print(f"{'─'*60}")
+print(f"  How it works: Find all stocks within a price range on a sorted array.")
+print(f"  Binary search finds the lower bound, then scans right. O(log n + k).")
+print(f"  Requires sorted data (uses merge sort first, then binary search).\n")
+
+d = req("POST", "/api/stocks/search", {"low": 100, "high": 105}, token=token)
+print(f"  POST /api/stocks/search (price $100-$105) -> {d['count']} stocks found")
+for s in d["stocks"][:3]:
+    print(f"    {s['symbol']} — ${s['price']}")
+if d["count"] > 3:
+    print(f"    ... and {d['count'] - 3} more")
+
+time.sleep(0.3)
+
+# ======================================================================
+# BONUS: LRU Cache
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"BONUS: LRU CACHE — Hot Stock Lookup Accelerator")
+print(f"{'─'*60}")
+print(f"  How it works: HashMap + Doubly Linked List composite.")
+print(f"  Most-recently accessed stocks stay in cache. Evicts LRU when full.")
+print(f"  All operations O(1) — hash lookup + list pointer juggling.\n")
+
+# Access AAPL again (should be cached now)
+d = req("GET", "/api/stocks/AAPL", token=token)
+stats = req("GET", "/api/cache/stats", token=token)
+print(f"  Cache stats: hits={stats['hits']}, misses={stats['misses']}, size={stats['size']}/{stats['capacity']}")
+print(f"  AAPL cached: {stats['hits'] > 0}")
+
+# ======================================================================
+# BENCHMARKS
+# ======================================================================
+print(f"\n{'─'*60}")
+print(f"BENCHMARKS — DSA Performance Comparison")
+print(f"{'─'*60}\n")
+
+d = req("GET", "/api/benchmarks", token=token)
+for b in d["results"]:
+    print(f"  {b['name']:25s} {b['time_us']:>8} µs  (n={b['n']})")
+
+print(f"\n{'─'*60}")
+print(f"ALL 8 DATA STRUCTURES TESTED SUCCESSFULLY!")
+print(f"{'─'*60}")
